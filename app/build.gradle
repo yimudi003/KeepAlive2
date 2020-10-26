@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        applicationId "com.sogou.daemon"
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11"
+            }
+        }
+        ndk {
+            abiFilters "armeabi-v7a"
+//            abiFilters /*"armeabi",*/ "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+//    sourceSets {
+//        main {
+//            jniLibs.srcDirs = ['src/main/jniLibs']
+//            aidl.srcDirs = ['src/main/aidl']
+//        }
+//    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
+}

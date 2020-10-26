@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.sogou.daemon">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <instrumentation
+        android:name="com.sogou.daemon.component.DaemonInstrumentation"
+        android:targetPackage="com.sogou.daemon"
+        android:targetProcesses="com.sogou.interestclean,com.sogou.interestclean:resident,com.sogou.interestclean:daemon,com.sogou.interestclean:assist1,com.sogou.interestclean:assist2" />
+
+    <application
+        android:name="com.sogou.App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name="com.sogou.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="com.sogou.daemon.component.DaemonService"
+            android:exported="true"
+            android:process=":daemon" />
+        <receiver
+            android:name="com.sogou.daemon.component.DaemonReceiver"
+            android:exported="true" />
+
+        <service
+            android:name="com.sogou.daemon.component.AssistService1"
+            android:exported="true"
+            android:process=":assist1" />
+        <service
+            android:name="com.sogou.daemon.component.AssistService2"
+            android:exported="true"
+            android:process=":assist2" />
+
+        <service
+            android:name="com.sogou.interestclean.notification.NotifyResidentService"
+            android:process=":resident">
+            <intent-filter>
+                <action android:name="com.sogou.interestclean.notification.NotifyResidentService" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>
