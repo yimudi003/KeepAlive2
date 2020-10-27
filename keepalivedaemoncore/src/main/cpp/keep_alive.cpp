@@ -140,13 +140,13 @@ int lock_file(const char *lock_file_path) {
     }
 }
 
-void java_callback(JNIEnv *env, jobject jobj, char *method_name) {
-    jclass cls = env->GetObjectClass(jobj);
+void java_callback(JNIEnv *env, jobject thiz, char *method_name) {
+    jclass cls = env->GetObjectClass(thiz);
     jmethodID cb_method = env->GetMethodID(cls, method_name, "()V");
-    env->CallVoidMethod(jobj, cb_method);
+    env->CallVoidMethod(thiz, cb_method);
 }
 
-void do_daemon(JNIEnv *env, jobject jobj, const char *indicator_self_path,
+void do_daemon(JNIEnv *env, jobject thiz, const char *indicator_self_path,
                const char *indicator_daemon_path,
                const char *observer_self_path, const char *observer_daemon_path,
                const char *pkgName, const char *serviceName, int sdk_version,
@@ -203,7 +203,7 @@ void do_daemon(JNIEnv *env, jobject jobj, const char *indicator_self_path,
         LOGD("writeService result is %d", status);
 //        int result = binder.get()->transact(code, parcel, NULL, 1);
         remove(observer_self_path);// it`s important ! to prevent from deadlock
-//        java_callback(env, jobj, DAEMON_CALLBACK_NAME);
+//        java_callback(env, thiz, DAEMON_CALLBACK_NAME);
         if (pid > 0) {
             killpg(pid, SIGTERM);
         }
@@ -222,26 +222,26 @@ bool wait_file_lock(const char *lock_file_path) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_nativeSetSid(JNIEnv *env, jobject jobj) {
+Java_com_keepalive_daemon_core_NativeKeepAlive_nativeSetSid(JNIEnv *env, jobject thiz) {
     setsid();
 }
 
 JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_waitFileLock(JNIEnv *env, jobject jobj,
+Java_com_keepalive_daemon_core_NativeKeepAlive_waitFileLock(JNIEnv *env, jobject thiz,
                                                             jstring path) {
     const char *file_path = (char *) env->GetStringUTFChars(path, 0);
     wait_file_lock(file_path);
 }
 
 JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_lockFile(JNIEnv *env, jobject jobj,
+Java_com_keepalive_daemon_core_NativeKeepAlive_lockFile(JNIEnv *env, jobject thiz,
                                                         jstring lockFilePath) {
     const char *lock_file_path = (char *) env->GetStringUTFChars(lockFilePath, 0);
     lock_file(lock_file_path);
 }
 
 JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject jobj,
+Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject thiz,
                                                         jstring indicatorSelfPath,
                                                         jstring indicatorDaemonPath,
                                                         jstring observerSelfPath,
@@ -320,7 +320,7 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject job
         set_process_name(env);
 
         // 直接传递parcel，会导致监听不到进程被杀；改成传输u8*数据解决了
-        do_daemon(env, jobj, indicator_self_path_child, indicator_daemon_path_child,
+        do_daemon(env, thiz, indicator_self_path_child, indicator_daemon_path_child,
                   observer_self_path_child, observer_daemon_path_child, pkgName, svcName,
                   sdk_version, transact_code);
     }
@@ -329,7 +329,7 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject job
         LOGE("waitpid error\n");
 
     LOGD("do_daemon pid=%d ppid=%d", getpid(), getppid());
-    do_daemon(env, jobj, indicator_self_path, indicator_daemon_path, observer_self_path,
+    do_daemon(env, thiz, indicator_self_path, indicator_daemon_path, observer_self_path,
               observer_daemon_path, pkgName, svcName, sdk_version, transact_code);
 }
 
