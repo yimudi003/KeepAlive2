@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.keepalive.daemon.core">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <instrumentation
+        android:name="com.keepalive.daemon.core.component.DaemonInstrumentation"
+        android:targetPackage="${applicationId}"
+        android:targetProcesses="com.sogou.interestclean,com.sogou.interestclean:resident,com.sogou.interestclean:daemon,com.sogou.interestclean:assist1,com.sogou.interestclean:assist2" />
+
+    <application>
+        <service
+            android:name="com.keepalive.daemon.core.component.DaemonService"
+            android:exported="true"
+            android:process=":daemon" />
+
+        <service
+            android:name="com.keepalive.daemon.core.component.AssistService1"
+            android:exported="true"
+            android:process=":assist1" />
+
+        <service
+            android:name="com.keepalive.daemon.core.component.AssistService2"
+            android:exported="true"
+            android:process=":assist2" />
+
+        <service
+            android:name="com.keepalive.daemon.core.notification.NotifyResidentService"
+            android:process=":resident">
+            <intent-filter>
+                <action android:name="com.sogou.interestclean.notification.NotifyResidentService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.keepalive.daemon.core.KeepAliveService"
+            android:process="android.process.daemon" />
+
+        <service
+            android:name="com.keepalive.daemon.core.service.DaemonService2"
+            android:process=":resident2" />
+
+        <receiver
+            android:name="com.keepalive.daemon.core.component.DaemonReceiver"
+            android:exported="true" />
+
+        <receiver android:name="com.keepalive.daemon.core.receiver.AutoBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_TICK" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

@@ -1,13 +1,13 @@
 package com.sogou;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
+import com.keepalive.daemon.core.notification.NotifyResidentService;
 import com.sogou.daemon.R;
-import com.sogou.interestclean.notification.NotifyResidentService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ContextCompat.startForegroundService(this, new Intent(this, NotifyResidentService.class));
+        ContextCompat.startForegroundService(this,
+                new Intent(this, NotifyResidentService.class));
     }
 }
