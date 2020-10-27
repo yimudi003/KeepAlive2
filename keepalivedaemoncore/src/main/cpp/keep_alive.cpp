@@ -30,7 +30,7 @@ void writeIntent(Parcel &out, const char *mPackage, const char *mClass) {
     out.writeInt32(0);
     // mType
     out.writeString16(NULL, 0);
-//    // mIdentifier
+    // mIdentifier
     out.writeString16(NULL, 0);
     // mFlags
     out.writeInt32(0);
@@ -105,32 +105,32 @@ void create_file_if_not_exist(char *path) {
     }
 }
 
-void notify_and_waitfor(char *observer_self_path, char *observer_daemon_path) {
+void notify_and_waitfor(const char *observer_self_path, const char *observer_daemon_path) {
     int observer_self_descriptor = open(observer_self_path, O_RDONLY);
+    LOGD("open %s %d", observer_self_path, observer_self_descriptor);
     if (observer_self_descriptor == -1) {
         observer_self_descriptor = open(observer_self_path, /*O_CREAT*/64, /*S_IRUSR | S_IWUSR*/
                                         384);
+        LOGD("open %s %d", observer_self_path, observer_self_descriptor);
     }
-    int observer_daemon_descriptor = open(observer_daemon_path, O_RDONLY);
-    while (observer_daemon_descriptor == -1) {
+    while (open(observer_daemon_path, O_RDONLY) == -1) {
         usleep(1000);
-        observer_daemon_descriptor = open(observer_daemon_path, O_RDONLY);
     }
     remove(observer_daemon_path);
-    LOGE("Watched >>>>OBSERVER<<<< has been ready...");
+    LOGI("Watched >>>>OBSERVER<<<< has been ready...");
 }
 
 
 int lock_file(const char *lock_file_path) {
     LOGD("start try to lock file >> %s <<", lock_file_path);
     int lockFileDescriptor = open(lock_file_path, O_RDONLY);
-    LOGD("lockFileDescriptor: %d", lockFileDescriptor);
+    LOGD("open %s %d", lock_file_path, lockFileDescriptor);
     if (lockFileDescriptor == -1) {
         lockFileDescriptor = open(lock_file_path, /*O_CREAT*/64, /*S_IRUSR*/256);
-        LOGD("lockFileDescriptor: %d", lockFileDescriptor);
+        LOGD("open %s %d", lock_file_path, lockFileDescriptor);
     }
     int lockRet = flock(lockFileDescriptor, LOCK_EX);
-    LOGD("lockRet: %d", lockRet);
+    LOGD("flock %s %d %d", lock_file_path, lockFileDescriptor, lockRet);
     if (lockRet == -1) {
         LOGE("lock file failed >> %s <<", lock_file_path);
         return 0;
@@ -146,8 +146,9 @@ void java_callback(JNIEnv *env, jobject jobj, char *method_name) {
     env->CallVoidMethod(jobj, cb_method);
 }
 
-void do_daemon(JNIEnv *env, jobject jobj, char *indicator_self_path, char *indicator_daemon_path,
-               char *observer_self_path, char *observer_daemon_path,
+void do_daemon(JNIEnv *env, jobject jobj, const char *indicator_self_path,
+               const char *indicator_daemon_path,
+               const char *observer_self_path, const char *observer_daemon_path,
                const char *pkgName, const char *serviceName, int sdk_version,
                uint32_t transact_code) {
     int lock_status = 0;
@@ -197,7 +198,7 @@ void do_daemon(JNIEnv *env, jobject jobj, char *indicator_self_path, char *indic
     LOGD("Watch >>>>to lock_file<<<<< !!");
     lock_status = lock_file(indicator_daemon_path);
     if (lock_status) {
-        LOGE("Watch >>>>DAEMON<<<<< Daed !!");
+        LOGE("Watch >>>>DAEMON<<<<< Dead !!");
         status_t status = write_transact(handle, transact_code, *data, NULL, 1, mDriverFD);
         LOGD("writeService result is %d", status);
 //        int result = binder.get()->transact(code, parcel, NULL, 1);
@@ -277,6 +278,9 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject job
     char *observer_daemon_path = (char *) env->GetStringUTFChars(observerDaemonPath, 0);
     char *pkgName = (char *) env->GetStringUTFChars(packageName, 0);
     char *svcName = (char *) env->GetStringUTFChars(serviceName, 0);
+    LOGD("indicator_self_path: %s, indicator_daemon_path: %s, observer_self_path: %s, "
+         "observer_daemon_path: %s, pkgName: %s, svcName: %s", indicator_self_path,
+         indicator_daemon_path, observer_self_path, observer_daemon_path, pkgName, svcName);
 
     pid_t pid;
     if ((pid = fork()) < 0) {

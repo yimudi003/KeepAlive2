@@ -12,7 +12,6 @@ import android.os.PowerManager;
 import android.os.Process;
 import android.os.RemoteException;
 import android.provider.Settings;
-import android.util.Log;
 
 import com.keepalive.daemon.core.utils.Logger;
 
@@ -238,7 +237,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
     private boolean startServiceByAmsBinder() {
         try {
             if (mRemote == null || mServiceData == null) {
-                Log.e("Daemon", "REMOTE IS NULL or PARCEL IS NULL !!!");
+                Logger.e(Logger.TAG, "REMOTE IS NULL or PARCEL IS NULL !!!");
                 return false;
             }
             mRemote.transact(transactCode, mServiceData, null, 1); // flag=FLAG_ONEWAY=1

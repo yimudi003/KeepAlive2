@@ -15,6 +15,10 @@ public class NativeKeepAlive {
                                 String serviceName,
                                 int sdkVersion);
 
+    public void onDaemonDead() {
+        IKeepAliveProcess.Fetcher.fetchStrategy().onDaemonDead();
+    }
+
     public native void test(String packageName, String serviceName, int sdkVersion);
 
     static {
