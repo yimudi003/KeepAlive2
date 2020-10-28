@@ -379,8 +379,8 @@ static JNINativeMethod methods[] = {
         {"test",         "(Ljava/lang/String;Ljava/lang/String;I)V",                                                                         (void *) keep_alive_test}
 };
 
-static int registerNativeMethods(JNIEnv *env, const char *className,
-                                 JNINativeMethod *gMethods, int numMethods) {
+static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *gMethods,
+                                 int numMethods) {
 
     jclass clazz = env->FindClass(className);
     if (clazz == NULL) {
@@ -398,7 +398,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     JNIEnv *env = NULL;
 
-    LOGI("JNI_OnLoad");
+    LOGI("###### JNI_OnLoad ######");
 
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
         return -1;

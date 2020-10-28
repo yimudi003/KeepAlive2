@@ -23,22 +23,20 @@ public class NotifyResidentService extends DaemonBaseService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.v(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Logger.v(Logger.TAG, "!!!!!!!!!!!!!!! intent: " + intent + ", startId: " + startId);
         try {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "daemon");
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG);
             builder.setContentTitle("Title");
-            builder.setContentText("Content");
+            builder.setContentText("Text");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationManagerCompat
                         .from(this)
-                        .createNotificationChannel(
-                                new NotificationChannel(
-                                        "daemon",
-                                        "daemon",
-                                        NotificationManager.IMPORTANCE_HIGH
-                                ));
+                        .createNotificationChannel(new NotificationChannel(
+                                Logger.TAG,
+                                Logger.TAG,
+                                NotificationManager.IMPORTANCE_HIGH));
             }
-            startForeground(123456, builder.build());
+            startForeground(9999, builder.build());
         } catch (Exception e) {
             Logger.e(Logger.TAG, "error : " + e, e);
         }

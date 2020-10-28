@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ContextCompat.startForegroundService(this,
-                new Intent(this, NotifyResidentService.class));
+//        ContextCompat.startForegroundService(this,
+//                new Intent(this, NotifyResidentService.class));
     }
 }

@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import com.keepalive.daemon.core.activity.ScreenManager;
 import com.keepalive.daemon.core.component.DaemonInstrumentation;
 import com.keepalive.daemon.core.component.DaemonReceiver;
 import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.service.DaemonService2;
 import com.keepalive.daemon.core.utils.HiddenApiWrapper;
 import com.keepalive.daemon.core.utils.Logger;
-import com.keepalive.daemon.core.utils.RuntimeUtil;
-import com.keepalive.daemon.core.utils.Utils;
 
 public class DaemonHolder {
 
@@ -33,11 +32,6 @@ public class DaemonHolder {
     }
 
     public void attach(Context base) {
-        if (false) {
-            RuntimeUtil.is64Bit();
-            Utils.getCurrSOLoaded();
-        }
-
         JavaDaemon.getInstance().fire(
                 base,
                 new Intent(base, DaemonService.class),
@@ -56,8 +50,8 @@ public class DaemonHolder {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Logger.d(Logger.TAG, "############################# onReceive(): intent=" + intent);
-                // 设置服务自启
                 context.startService(new Intent(context, DaemonService2.class));
+                ScreenManager.getInstance().startActivity(context);
             }
         });
         KeepAlive.init(base, configs);
