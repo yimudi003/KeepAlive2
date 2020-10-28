@@ -233,7 +233,6 @@ waitForResponse(Parcel *reply, status_t *acquireResult, int mDriverFD, Parcel &m
 
             default:
                 err = executeCommand(cmd, mIn, mOut);
-                LOGE("executeCommand err=%d", err);
                 if (err != NO_ERROR) goto finish;
                 break;
         }
@@ -241,10 +240,12 @@ waitForResponse(Parcel *reply, status_t *acquireResult, int mDriverFD, Parcel &m
 
     finish:
     if (err != NO_ERROR) {
+        LOGE("executeCommand err=%d", err);
         if (acquireResult) *acquireResult = err;
         if (reply) reply->setError(err);
 //        mLastError = err;
     }
+    LOGD("err: %d", err);
     return err;
 }
 

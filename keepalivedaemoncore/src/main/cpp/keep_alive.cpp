@@ -146,7 +146,7 @@ void java_callback(JNIEnv *env, jobject thiz, char *method_name) {
     env->CallVoidMethod(thiz, cb_method);
 }
 
-void do_daemon(JNIEnv *env, jobject thiz, const char *indicator_self_path,
+void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
                const char *indicator_daemon_path,
                const char *observer_self_path, const char *observer_daemon_path,
                const char *pkgName, const char *serviceName, int sdk_version,
@@ -221,34 +221,28 @@ bool wait_file_lock(const char *lock_file_path) {
     return flock(lockFileDescriptor, LOCK_EX) != -1;
 }
 
-JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_nativeSetSid(JNIEnv *env, jobject thiz) {
+void keep_alive_set_sid(JNIEnv *env, jclass jclazz) {
     setsid();
 }
 
-JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_waitFileLock(JNIEnv *env, jobject thiz,
-                                                            jstring path) {
+void keep_alive_wait_file_lock(JNIEnv *env, jclass jclazz, jstring path) {
     const char *file_path = (char *) env->GetStringUTFChars(path, 0);
     wait_file_lock(file_path);
 }
 
-JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_lockFile(JNIEnv *env, jobject thiz,
-                                                        jstring lockFilePath) {
+void keep_alive_lock_file(JNIEnv *env, jclass jclazz, jstring lockFilePath) {
     const char *lock_file_path = (char *) env->GetStringUTFChars(lockFilePath, 0);
     lock_file(lock_file_path);
 }
 
-JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject thiz,
-                                                        jstring indicatorSelfPath,
-                                                        jstring indicatorDaemonPath,
-                                                        jstring observerSelfPath,
-                                                        jstring observerDaemonPath,
-                                                        jstring packageName,
-                                                        jstring serviceName,
-                                                        jint sdk_version) {
+void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
+                          jstring indicatorSelfPath,
+                          jstring indicatorDaemonPath,
+                          jstring observerSelfPath,
+                          jstring observerDaemonPath,
+                          jstring packageName,
+                          jstring serviceName,
+                          jint sdk_version) {
     if (indicatorSelfPath == NULL || indicatorDaemonPath == NULL || observerSelfPath == NULL ||
         observerDaemonPath == NULL) {
         LOGE("parameters cannot be NULL !");
@@ -320,7 +314,7 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject thi
         set_process_name(env);
 
         // 直接传递parcel，会导致监听不到进程被杀；改成传输u8*数据解决了
-        do_daemon(env, thiz, indicator_self_path_child, indicator_daemon_path_child,
+        do_daemon(env, jclazz, indicator_self_path_child, indicator_daemon_path_child,
                   observer_self_path_child, observer_daemon_path_child, pkgName, svcName,
                   sdk_version, transact_code);
     }
@@ -329,16 +323,12 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_doDaemon(JNIEnv *env, jobject thi
         LOGE("waitpid error\n");
 
     LOGD("do_daemon pid=%d ppid=%d", getpid(), getppid());
-    do_daemon(env, thiz, indicator_self_path, indicator_daemon_path, observer_self_path,
+    do_daemon(env, jclazz, indicator_self_path, indicator_daemon_path, observer_self_path,
               observer_daemon_path, pkgName, svcName, sdk_version, transact_code);
 }
 
-}
-
-extern "C"
-JNIEXPORT void JNICALL
-Java_com_keepalive_daemon_core_NativeKeepAlive_test(JNIEnv *env, jobject thiz, jstring packageName,
-                                                    jstring serviceName, jint sdk_version) {
+void keep_alive_test(JNIEnv *env, jclass jclazz, jstring packageName, jstring serviceName,
+                     jint sdk_version) {
     int mDriverFD = open_driver();
     void *mVMStart = MAP_FAILED;
     initProcessState(mDriverFD, mVMStart);
@@ -376,4 +366,47 @@ Java_com_keepalive_daemon_core_NativeKeepAlive_test(JNIEnv *env, jobject thiz, j
     LOGD("writeService result is %d", status);
     delete data;
     unInitProcessState(mDriverFD, mVMStart);
+}
+
+}
+
+static JNINativeMethod methods[] = {
+
+        {"lockFile",     "(Ljava/lang/String;)V",                                                                                            (void *) keep_alive_lock_file},
+        {"nativeSetSid", "()V",                                                                                                              (void *) keep_alive_set_sid},
+        {"waitFileLock", "(Ljava/lang/String;)V",                                                                                            (void *) keep_alive_wait_file_lock},
+        {"doDaemon",     "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V", (void *) keep_alive_do_daemon},
+        {"test",         "(Ljava/lang/String;Ljava/lang/String;I)V",                                                                         (void *) keep_alive_test}
+};
+
+static int registerNativeMethods(JNIEnv *env, const char *className,
+                                 JNINativeMethod *gMethods, int numMethods) {
+
+    jclass clazz = env->FindClass(className);
+    if (clazz == NULL) {
+        return JNI_FALSE;
+    }
+
+    if (env->RegisterNatives(clazz, gMethods, numMethods) < 0) {
+        return JNI_FALSE;
+    }
+
+    return JNI_TRUE;
+}
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+
+    JNIEnv *env = NULL;
+
+    LOGI("JNI_OnLoad");
+
+    if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+        return -1;
+    }
+
+    if (!registerNativeMethods(env, JAVA_CLASS, methods, sizeof(methods) / sizeof(methods[0]))) {
+        return -1;
+    }
+
+    return JNI_VERSION_1_6;
 }

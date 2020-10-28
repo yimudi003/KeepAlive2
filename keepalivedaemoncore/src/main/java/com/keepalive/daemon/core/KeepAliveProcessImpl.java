@@ -79,7 +79,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
             @Override
             public void run() {
                 File indicatorDir = context.getDir(INDICATOR_DIR_NAME, Context.MODE_PRIVATE);
-                new NativeKeepAlive().doDaemon(
+                NativeKeepAlive.doDaemon(
                         new File(indicatorDir, INDICATOR_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, INDICATOR_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_PERSISTENT_FILENAME).getAbsolutePath(),
@@ -107,7 +107,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
             @Override
             public void run() {
                 File indicatorDir = context.getDir(INDICATOR_DIR_NAME, Context.MODE_PRIVATE);
-                new NativeKeepAlive().doDaemon(
+                NativeKeepAlive.doDaemon(
                         new File(indicatorDir, INDICATOR_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, INDICATOR_PERSISTENT_FILENAME).getAbsolutePath(),
                         new File(indicatorDir, OBSERVER_DAEMON_ASSISTANT_FILENAME).getAbsolutePath(),
