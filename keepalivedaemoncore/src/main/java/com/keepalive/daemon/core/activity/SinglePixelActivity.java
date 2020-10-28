@@ -18,8 +18,8 @@ import android.view.WindowManager;
 
 import androidx.core.content.ContextCompat;
 
+import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.notification.NotifyResidentService;
-import com.keepalive.daemon.core.service.DaemonService2;
 import com.keepalive.daemon.core.utils.Logger;
 
 public class SinglePixelActivity extends Activity {
@@ -45,7 +45,7 @@ public class SinglePixelActivity extends Activity {
     protected void onDestroy() {
 //        if (!SystemUtils.isAppAlive(this, Constant.PACKAGE_NAME)) {
         Logger.d(Logger.TAG, "one pixel activity --- onDestroy");
-        Intent intentAlive = new Intent(this, DaemonService2.class);
+        Intent intentAlive = new Intent(this, DaemonService.class);
         startService(intentAlive);
 //        }
         super.onDestroy();

@@ -34,7 +34,7 @@ public class NotifyResidentService extends DaemonBaseService {
                         .createNotificationChannel(new NotificationChannel(
                                 Logger.TAG,
                                 Logger.TAG,
-                                NotificationManager.IMPORTANCE_HIGH));
+                                NotificationManager.IMPORTANCE_LOW));
             }
             startForeground(9999, builder.build());
         } catch (Exception e) {

@@ -8,7 +8,6 @@ import com.keepalive.daemon.core.activity.ScreenManager;
 import com.keepalive.daemon.core.component.DaemonInstrumentation;
 import com.keepalive.daemon.core.component.DaemonReceiver;
 import com.keepalive.daemon.core.component.DaemonService;
-import com.keepalive.daemon.core.service.DaemonService2;
 import com.keepalive.daemon.core.utils.HiddenApiWrapper;
 import com.keepalive.daemon.core.utils.Logger;
 
@@ -42,15 +41,15 @@ public class DaemonHolder {
         JavaDaemon.getInstance().fire(base, strArr);
 
         KeepAliveConfigs configs = new KeepAliveConfigs(
-                new KeepAliveConfigs.Config(base.getPackageName() + ":resident2",
-                        DaemonService2.class.getCanonicalName()));
+                new KeepAliveConfigs.Config(base.getPackageName() + ":daemon",
+                        DaemonService.class.getCanonicalName()));
 //        configs.ignoreBatteryOptimization();
 //        configs.rebootThreshold(10 * 1000, 3);
         configs.setOnBootReceivedListener(new KeepAliveConfigs.OnBootReceivedListener() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Logger.d(Logger.TAG, "############################# onReceive(): intent=" + intent);
-                context.startService(new Intent(context, DaemonService2.class));
+                context.startService(new Intent(context, DaemonService.class));
                 ScreenManager.getInstance().startActivity(context);
             }
         });
