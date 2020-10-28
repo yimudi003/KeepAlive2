@@ -37,7 +37,7 @@ public class DaemonMain {
             f();
             NativeKeepAlive.nativeSetSid();
             try {
-                Logger.v(Logger.TAG, "setargv0 " + b.b);
+                Logger.v(Logger.TAG, "setArgV0 " + b.b);
                 Process.class.getMethod("setArgV0", new Class[]{String.class}).invoke(null,
                         new Object[]{b.b});
             } catch (Exception e) {

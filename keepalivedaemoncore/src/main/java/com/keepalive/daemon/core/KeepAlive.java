@@ -1,15 +1,10 @@
 package com.keepalive.daemon.core;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
-import android.os.SystemClock;
 
-import com.keepalive.daemon.core.receiver.AutoBootReceiver;
 import com.keepalive.daemon.core.utils.Logger;
 
 import java.io.BufferedReader;
@@ -93,18 +88,18 @@ public class KeepAlive {
 //    }
 
     static String getProcessName() {
-        BufferedReader mBufferedReader = null;
+        BufferedReader br = null;
         try {
             File file = new File("/proc/self/cmdline");
-            mBufferedReader = new BufferedReader(new FileReader(file));
-            return mBufferedReader.readLine().trim();
+            br = new BufferedReader(new FileReader(file));
+            return br.readLine().trim();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         } finally {
-            if (mBufferedReader != null) {
+            if (br != null) {
                 try {
-                    mBufferedReader.close();
+                    br.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
