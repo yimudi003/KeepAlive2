@@ -6,7 +6,6 @@ public class DaemonEnv {
     public String processName;
     public String publicSourceDir;
 
-    /* renamed from: c  reason: collision with root package name */
     public String nativeLibraryDir;
     public Intent intent;
     public Intent intent2;

@@ -38,10 +38,6 @@
             android:name="com.keepalive.daemon.core.KeepAliveService"
             android:process="android.process.daemon" />
 
-        <service
-            android:name="com.keepalive.daemon.core.service.DaemonService2"
-            android:process=":resident2" />
-
         <receiver
             android:name="com.keepalive.daemon.core.component.DaemonReceiver"
             android:exported="true" />

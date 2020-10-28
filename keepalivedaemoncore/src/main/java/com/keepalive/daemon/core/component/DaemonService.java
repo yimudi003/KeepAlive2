@@ -24,7 +24,6 @@ public class DaemonService extends Service {
             ContextCompat.startForegroundService(this, intent);
         } catch (Throwable th) {
             Logger.e(Logger.TAG, "failed to start foreground service: " + th.getMessage());
-            startService(intent);
         }
 
         Intent intent2 = new Intent();

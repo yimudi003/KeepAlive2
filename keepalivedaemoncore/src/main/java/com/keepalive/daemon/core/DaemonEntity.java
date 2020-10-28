@@ -10,8 +10,8 @@ public class DaemonEntity implements Parcelable {
     public String b;
 
     public Intent intent;
-    public Intent d;
-    public Intent e;
+    public Intent intent2;
+    public Intent intent3;
 
     public static final Creator<DaemonEntity> CREATOR = new Creator<DaemonEntity>() {
         @Override
@@ -40,10 +40,10 @@ public class DaemonEntity implements Parcelable {
             intent = Intent.CREATOR.createFromParcel(parcel);
         }
         if (parcel.readInt() != 0) {
-            d = Intent.CREATOR.createFromParcel(parcel);
+            intent2 = Intent.CREATOR.createFromParcel(parcel);
         }
         if (parcel.readInt() != 0) {
-            e = Intent.CREATOR.createFromParcel(parcel);
+            intent3 = Intent.CREATOR.createFromParcel(parcel);
         }
     }
 
@@ -57,18 +57,18 @@ public class DaemonEntity implements Parcelable {
             parcel.writeInt(1);
             intent.writeToParcel(parcel, i);
         }
-        if (d == null) {
+        if (intent2 == null) {
             parcel.writeInt(0);
         } else {
             parcel.writeInt(1);
-            d.writeToParcel(parcel, i);
+            intent2.writeToParcel(parcel, i);
         }
-        if (e == null) {
+        if (intent3 == null) {
             parcel.writeInt(0);
             return;
         }
         parcel.writeInt(1);
-        e.writeToParcel(parcel, i);
+        intent3.writeToParcel(parcel, i);
     }
 
     public static DaemonEntity create(String str) {

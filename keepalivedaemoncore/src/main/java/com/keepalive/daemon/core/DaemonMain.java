@@ -123,8 +123,8 @@ public class DaemonMain {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             d.writeInt(1);
         }
-        b.d.setFlags(32);
-        b.d.writeToParcel(d, 0);
+        b.intent2.setFlags(32);
+        b.intent2.writeToParcel(d, 0);
         d.writeString(null);
         d.writeStrongBinder(null);
         d.writeInt(-1);
@@ -144,7 +144,7 @@ public class DaemonMain {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             e.writeInt(1);
         }
-        b.e.getComponent().writeToParcel(e, 0);
+        b.intent3.getComponent().writeToParcel(e, 0);
         e.writeString(null);
         e.writeInt(0);
         e.writeInt(0);

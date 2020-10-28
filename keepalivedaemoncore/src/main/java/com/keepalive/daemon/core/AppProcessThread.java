@@ -2,8 +2,6 @@ package com.keepalive.daemon.core;
 
 import android.content.Context;
 
-import com.keepalive.daemon.core.utils.Logger;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +25,10 @@ public class AppProcessThread extends Thread {
         daemonEntity.b = this.strArr;
         daemonEntity.a = this.b;
         daemonEntity.intent = env.intent;
-        daemonEntity.d = env.intent2;
-        daemonEntity.e = env.intent3;
-        List arrayList = new ArrayList();
+        daemonEntity.intent2 = env.intent2;
+        daemonEntity.intent3 = env.intent3;
+
+        List<String> arrayList = new ArrayList();
         arrayList.add("export CLASSPATH=$CLASSPATH:" + env.publicSourceDir);
         if (env.nativeLibraryDir.contains("arm64")) {
             arrayList.add("export _LD_LIBRARY_PATH=/system/lib64/:/vendor/lib64/:" + env.nativeLibraryDir);
@@ -49,8 +48,7 @@ public class AppProcessThread extends Thread {
         File file = new File("/");
         String[] strArr = new String[arrayList.size()];
         for (int i = 0; i < strArr.length; i++) {
-            strArr[i] = (String) arrayList.get(i);
-            Logger.v(Logger.TAG, strArr[i]);
+            strArr[i] = arrayList.get(i);
         }
         ShellExecutor.execute(file, null, strArr);
     }

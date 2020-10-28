@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Map;
 
 public class ShellExecutor {
@@ -14,6 +15,7 @@ public class ShellExecutor {
 
     public static void execute(File file, Map map, String[] strArr) {
         if (strArr.length > 0) {
+            Logger.v(Logger.TAG, "file: " + file + ", strArr: " + Arrays.toString(strArr));
             ProcessBuilder processBuilder = new ProcessBuilder(new String[0]);
             String str = System.getenv("PATH");
             if (str != null) {
