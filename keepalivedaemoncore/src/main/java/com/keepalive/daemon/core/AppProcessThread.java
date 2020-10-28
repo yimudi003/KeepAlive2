@@ -26,7 +26,7 @@ public class AppProcessThread extends Thread {
         DaemonEntity daemonEntity = new DaemonEntity();
         daemonEntity.b = this.strArr;
         daemonEntity.a = this.b;
-        daemonEntity.f4740c = env.intent;
+        daemonEntity.intent = env.intent;
         daemonEntity.d = env.intent2;
         daemonEntity.e = env.intent3;
         List arrayList = new ArrayList();

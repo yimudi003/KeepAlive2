@@ -76,6 +76,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
         startServiceByAmsBinder();
 
         Thread t = new Thread() {
+            @Override
             public void run() {
                 File indicatorDir = context.getDir(INDICATOR_DIR_NAME, Context.MODE_PRIVATE);
                 new NativeKeepAlive().doDaemon(
@@ -103,6 +104,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
         startServiceByAmsBinder();
 
         Thread t = new Thread() {
+            @Override
             public void run() {
                 File indicatorDir = context.getDir(INDICATOR_DIR_NAME, Context.MODE_PRIVATE);
                 new NativeKeepAlive().doDaemon(

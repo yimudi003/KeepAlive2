@@ -42,9 +42,9 @@ public class KeepAlive {
         }
 
         String processName = getProcessName();
-        Logger.v(Logger.TAG, "====== processName: " + processName);
+        Logger.v(Logger.TAG, "============>>> processName: " + processName);
         String packageName = base.getPackageName();
-        Logger.v(Logger.TAG, "====== packageName: " + packageName);
+        Logger.v(Logger.TAG, "============>>> packageName: " + packageName);
 
         if (processName == null) {
             Logger.e(Logger.TAG, "process name is empty");
@@ -70,27 +70,27 @@ public class KeepAlive {
             if (KeepAliveConfigs.bootReceivedListener != null) {
                 KeepAliveConfigs.bootReceivedListener.onReceive(base, new Intent(Intent.ACTION_RUN));
             }
-            KeepAlive.launchAlarm(base);
+//            KeepAlive.launchAlarm(base);
         }
     }
 
-    public static void launchAlarm(Context context) {
-        // alarm唤醒
-        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (manager == null) {
-            return;
-        }
-        long INTERVAL_WAKEUP_MS = 60 * 1000; // 60 seconds
-        long triggerAtTime = SystemClock.elapsedRealtime() + INTERVAL_WAKEUP_MS;
-        Intent i = new Intent(context, AutoBootReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            manager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
-        } else {
-            manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
-        }
-    }
+//    public static void launchAlarm(Context context) {
+//        // alarm唤醒
+//        AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//        if (manager == null) {
+//            return;
+//        }
+//        long INTERVAL_WAKEUP_MS = 60 * 1000; // 60 seconds
+//        long triggerAtTime = SystemClock.elapsedRealtime() + INTERVAL_WAKEUP_MS;
+//        Intent i = new Intent(context, AutoBootReceiver.class);
+//        PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            manager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+//        } else {
+//            manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+//        }
+//    }
 
     static String getProcessName() {
         BufferedReader mBufferedReader = null;
@@ -124,24 +124,35 @@ public class KeepAlive {
         return editor.commit();
     }
 
-    private static boolean checkMainProcessContinuousBootOverTimes(Context context, KeepAliveConfigs configurations) {
-        return checkProcessContinuousBootOverTimes(context, configurations, "main_process_boot_times", "main_process_boot_time");
+    private static boolean checkMainProcessContinuousBootOverTimes(Context context,
+                                                                   KeepAliveConfigs configurations) {
+        return checkProcessContinuousBootOverTimes(context, configurations,
+                "main_process_boot_times", "main_process_boot_time");
     }
 
-    private static boolean checkServiceProcessContinuousBootOverTimes(Context context, KeepAliveConfigs configurations) {
-        return checkProcessContinuousBootOverTimes(context, configurations, "service_process_boot_times", "service_process_boot_time");
+    private static boolean checkServiceProcessContinuousBootOverTimes(Context context,
+                                                                      KeepAliveConfigs configurations) {
+        return checkProcessContinuousBootOverTimes(context, configurations,
+                "service_process_boot_times", "service_process_boot_time");
     }
 
-    private static boolean checkDaemonProcessContinuousBootOverTimes(Context context, KeepAliveConfigs configurations) {
-        return checkProcessContinuousBootOverTimes(context, configurations, "daemon_process_boot_times", "daemon_process_boot_time");
+    private static boolean checkDaemonProcessContinuousBootOverTimes(Context context,
+                                                                     KeepAliveConfigs configurations) {
+        return checkProcessContinuousBootOverTimes(context, configurations,
+                "daemon_process_boot_times", "daemon_process_boot_time");
     }
 
-    private static boolean checkProcessContinuousBootOverTimes(Context context, KeepAliveConfigs configurations, String timesKey, String rebootTimeKey) {
+    private static boolean checkProcessContinuousBootOverTimes(Context context,
+                                                               KeepAliveConfigs configurations,
+                                                               String timesKey,
+                                                               String rebootTimeKey) {
         SharedPreferences sp = context.getSharedPreferences(DAEMON_PERMITTING_SP_FILENAME, Context.MODE_PRIVATE);
         int times = sp.getInt(timesKey, 0);
         long lastBootTime = sp.getLong(rebootTimeKey, 0);
         long now = System.currentTimeMillis();
-        Logger.e(Logger.TAG, "checkCC " + times + " lastTime=" + lastBootTime + " diff=" + (now - lastBootTime) + " max=" + configurations.rebootIntervalMs + " times=" + configurations.rebootMaxTimes);
+        Logger.e(Logger.TAG, "checkCC " + times + " lastTime=" + lastBootTime
+                + " diff=" + (now - lastBootTime) + " max=" + configurations.rebootIntervalMs
+                + " times=" + configurations.rebootMaxTimes);
         if (lastBootTime > 0) {
             if (now - lastBootTime < configurations.rebootIntervalMs) {
                 if (times >= configurations.rebootMaxTimes) {

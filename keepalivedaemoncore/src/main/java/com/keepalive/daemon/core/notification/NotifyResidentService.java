@@ -35,7 +35,7 @@ public class NotifyResidentService extends DaemonBaseService {
                                 new NotificationChannel(
                                         "daemon",
                                         "daemon",
-                                        NotificationManager.IMPORTANCE_DEFAULT
+                                        NotificationManager.IMPORTANCE_HIGH
                                 ));
             }
             startForeground(123456, builder.build());

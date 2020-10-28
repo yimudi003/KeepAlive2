@@ -13,6 +13,6 @@ public class AutoBootReceiver extends BroadcastReceiver {
         if (KeepAliveConfigs.bootReceivedListener != null) {
             KeepAliveConfigs.bootReceivedListener.onReceive(context, intent);
         }
-        KeepAlive.launchAlarm(context);
+//        KeepAlive.launchAlarm(context);
     }
 }

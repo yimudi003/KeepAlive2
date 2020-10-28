@@ -58,7 +58,7 @@ status_t talkWithDriver(bool doReceive, int mDriverFD, Parcel &mOut, Parcel &mIn
         return -EBADF;
     }
     if (mOut.dataSize() > 0) {
-        LOGD("talkWithDriver1 %lu %lu", mOut.dataSize(), mIn.dataSize());
+        LOGD("%lu %lu", mOut.dataSize(), mIn.dataSize());
     }
 
     binder_write_read bwr;
@@ -71,10 +71,10 @@ status_t talkWithDriver(bool doReceive, int mDriverFD, Parcel &mOut, Parcel &mIn
     // has requested to read the next data.
     const size_t outAvail = (!doReceive || needRead) ? mOut.dataSize() : 0;
     if (outAvail > 0) {
-        LOGD("talkWithDriver1 outAvail %lu %lu", mOut.dataSize(), mIn.dataSize());
+        LOGD("outAvail %lu %lu", mOut.dataSize(), mIn.dataSize());
     }
     if (mIn.dataSize() > 0) {
-        LOGD("talkWithDriver1 inAvail %lu %lu", mOut.dataSize(), mIn.dataSize());
+        LOGD("inAvail %lu %lu", mOut.dataSize(), mIn.dataSize());
     }
 //    LOGD("outAvail=%d,%d",outAvail,mOut.dataSize());
     bwr.write_size = outAvail;
@@ -113,7 +113,8 @@ status_t talkWithDriver(bool doReceive, int mDriverFD, Parcel &mOut, Parcel &mIn
         LOGD("\"Finished read/write, write size = %lu ret=%d", mOut.dataSize(), ret);
     } while (err == -EINTR);
 
-    LOGD("Our err: %d, write consumed: %lld (of %lu), read consumed: %lld", err, bwr.write_consumed,
+    LOGD("Our err: %d, write consumed: %lld (of %lu), read consumed: %lld", err,
+         bwr.write_consumed,
          mOut.dataSize(), bwr.read_consumed);
 
     if (err >= NO_ERROR) {
@@ -139,23 +140,23 @@ status_t
 waitForResponse(Parcel *reply, status_t *acquireResult, int mDriverFD, Parcel &mOut, Parcel &mIn) {
     uint32_t cmd;
     int32_t err;
-    LOGD("waitForResponse %lu %lu", mOut.dataSize(), mIn.dataSize());
+    LOGD("%lu %lu", mOut.dataSize(), mIn.dataSize());
 
-    LOGD("BR_TRANSACTION_COMPLETE %d", BR_TRANSACTION_COMPLETE);
-    LOGD("BR_DEAD_REPLY %d", BR_DEAD_REPLY);
-    LOGD("BR_FAILED_REPLY %d", BR_FAILED_REPLY);
-    LOGD("BR_ACQUIRE_RESULT %d", BR_ACQUIRE_RESULT);
-    LOGD("BR_REPLY %d", BR_REPLY);
-    LOGD("BR_ERROR %d", BR_ERROR);
-    LOGD("BR_OK %d", BR_OK);
-    LOGD("BR_TRANSACTION %d", BR_TRANSACTION);
-    LOGD("BR_INCREFS %d", BR_INCREFS);
-    LOGD("BR_NOOP %d", BR_NOOP);
-    LOGD("BR_SPAWN_LOOPER %d", BR_SPAWN_LOOPER);
-    LOGD("BR_FINISHED %d", BR_FINISHED);
-    LOGD("BR_DEAD_BINDER %d", BR_DEAD_BINDER);
-    LOGD("BR_CLEAR_DEATH_NOTIFICATION_DONE %d", BR_CLEAR_DEATH_NOTIFICATION_DONE);
-    LOGD("BR_FAILED_REPLY %d", BR_FAILED_REPLY);
+//    LOGD("BR_TRANSACTION_COMPLETE %d", BR_TRANSACTION_COMPLETE);
+//    LOGD("BR_DEAD_REPLY %d", BR_DEAD_REPLY);
+//    LOGD("BR_FAILED_REPLY %d", BR_FAILED_REPLY);
+//    LOGD("BR_ACQUIRE_RESULT %d", BR_ACQUIRE_RESULT);
+//    LOGD("BR_REPLY %d", BR_REPLY);
+//    LOGD("BR_ERROR %d", BR_ERROR);
+//    LOGD("BR_OK %d", BR_OK);
+//    LOGD("BR_TRANSACTION %d", BR_TRANSACTION);
+//    LOGD("BR_INCREFS %d", BR_INCREFS);
+//    LOGD("BR_NOOP %d", BR_NOOP);
+//    LOGD("BR_SPAWN_LOOPER %d", BR_SPAWN_LOOPER);
+//    LOGD("BR_FINISHED %d", BR_FINISHED);
+//    LOGD("BR_DEAD_BINDER %d", BR_DEAD_BINDER);
+//    LOGD("BR_CLEAR_DEATH_NOTIFICATION_DONE %d", BR_CLEAR_DEATH_NOTIFICATION_DONE);
+//    LOGD("BR_FAILED_REPLY %d", BR_FAILED_REPLY);
 
 //    err = talkWithDriver(false, mDriverFD, mOut, mIn);
 //    LOGD("talkWithDriver %d", err);
@@ -191,8 +192,8 @@ waitForResponse(Parcel *reply, status_t *acquireResult, int mDriverFD, Parcel &m
                 const int32_t result = mIn.readInt32();
                 if (!acquireResult) continue;
                 *acquireResult = result ? NO_ERROR : INVALID_OPERATION;
-            }
                 goto finish;
+            }
 
             case BR_REPLY: {
                 LOGD("BR_REPLY");
@@ -227,8 +228,8 @@ waitForResponse(Parcel *reply, status_t *acquireResult, int mDriverFD, Parcel &m
                                tr.offsets_size / sizeof(size_t), NULL);
                     continue;
                 }
-            }
                 goto finish;
+            }
 
             default:
                 err = executeCommand(cmd, mIn, mOut);
@@ -291,7 +292,7 @@ write_transact(int32_t handle, uint32_t code, const Parcel &data, Parcel *reply,
     Parcel *mOut = new Parcel;
     mOut->setDataCapacity(256);
     err = writeTransactionData(BC_TRANSACTION, flags, handle, code, data, *mOut, NULL);
-    LOGD("writeTransactionData %lu %lu", data.dataSize(), mOut->dataSize());
+    LOGD("%lu %lu", data.dataSize(), mOut->dataSize());
     if (err != NO_ERROR) {
         LOGE("writeTransactionData error occurred: %s, %d,%d", strerror(errno), errno, err);
         delete mOut;
@@ -321,6 +322,7 @@ write_transact(int32_t handle, uint32_t code, const Parcel &data, Parcel *reply,
 
 
 status_t executeCommand(uint32_t cmd, Parcel &mIn, Parcel &mOut) {
+    LOGD("cmd: %d, mIn: %p, mOut: %p", cmd, &mIn, &mOut);
 //    BBinder* obj;
     int32_t obj;
 //    RefBase::weakref_type* refs;
@@ -507,9 +509,8 @@ status_t executeCommand(uint32_t cmd, Parcel &mIn, Parcel &mOut) {
 //                alog << "BC_REPLY thr " << (void*)pthread_self() << " / obj "
 //                     << tr.target.ptr << ": " << indent << reply << dedent << endl;
 //            }
-
-        }
             break;
+        }
 
         case BR_DEAD_BINDER: {
             LOGD("BR_DEAD_BINDER");
@@ -518,16 +519,16 @@ status_t executeCommand(uint32_t cmd, Parcel &mIn, Parcel &mOut) {
 //            proxy->sendObituary();
             mOut.writeInt32(BC_DEAD_BINDER_DONE);
             mOut.writeInt32((int32_t) proxy);
-        }
             break;
+        }
 
         case BR_CLEAR_DEATH_NOTIFICATION_DONE: {
             LOGD("BR_CLEAR_DEATH_NOTIFICATION_DONE");
 //            BpBinder *proxy = (BpBinder*)mIn.readInt32();
             int32_t proxy = mIn.readInt32();
 //            proxy->getWeakRefs()->decWeak(proxy);
-        }
             break;
+        }
 
         case BR_FINISHED:
             LOGD("BR_FINISHED");

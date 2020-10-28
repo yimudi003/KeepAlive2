@@ -2,8 +2,9 @@ package com.keepalive.daemon.core.component;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
+
+import androidx.core.content.ContextCompat;
 
 import com.keepalive.daemon.core.notification.NotifyResidentService;
 import com.keepalive.daemon.core.utils.Logger;
@@ -20,11 +21,7 @@ public class DaemonService extends Service {
         Intent intent = new Intent();
         intent.setClassName(getPackageName(), NotifyResidentService.class.getName());
         try {
-            if (Build.VERSION.SDK_INT >= 26) {
-                startForegroundService(intent);
-            } else {
-                startService(intent);
-            }
+            ContextCompat.startForegroundService(this, intent);
         } catch (Throwable th) {
             Logger.e(Logger.TAG, "failed to start foreground service: " + th.getMessage());
             startService(intent);
