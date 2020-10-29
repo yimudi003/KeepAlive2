@@ -19,7 +19,7 @@ extern "C" {
 void set_process_name(JNIEnv *env) {
     jclass process = env->FindClass("android/os/Process");
     jmethodID setArgV0 = env->GetStaticMethodID(process, "setArgV0", "(Ljava/lang/String;)V");
-    jstring name = env->NewStringUTF("app_d");
+    jstring name = env->NewStringUTF("daemon");
     env->CallStaticVoidMethod(process, setArgV0, name);
 }
 
@@ -106,27 +106,25 @@ void create_file_if_not_exist(char *path) {
 }
 
 void notify_and_waitfor(const char *observer_self_path, const char *observer_daemon_path) {
-    int observer_self_descriptor = open(observer_self_path, O_RDONLY);
+    int observer_self_descriptor = open(observer_self_path, O_RDONLY | O_LARGEFILE);
     LOGD("open %s %d", observer_self_path, observer_self_descriptor);
     if (observer_self_descriptor == -1) {
-        observer_self_descriptor = open(observer_self_path, /*O_CREAT*/64, /*S_IRUSR | S_IWUSR*/
-                                        384);
+        observer_self_descriptor = open(observer_self_path, O_CREAT, S_IRUSR | S_IWUSR);
         LOGD("open %s %d", observer_self_path, observer_self_descriptor);
     }
-    while (open(observer_daemon_path, O_RDONLY) == -1) {
+    while (open(observer_daemon_path, O_RDONLY | O_LARGEFILE) == -1) {
         usleep(1000);
     }
     remove(observer_daemon_path);
     LOGI("Watched >>>>OBSERVER<<<< has been ready...");
 }
 
-
 int lock_file(const char *lock_file_path) {
     LOGD("start try to lock file >> %s <<", lock_file_path);
-    int lockFileDescriptor = open(lock_file_path, O_RDONLY);
+    int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     LOGD("open %s %d", lock_file_path, lockFileDescriptor);
     if (lockFileDescriptor == -1) {
-        lockFileDescriptor = open(lock_file_path, /*O_CREAT*/64, /*S_IRUSR*/256);
+        lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
         LOGD("open %s %d", lock_file_path, lockFileDescriptor);
     }
     int lockRet = flock(lockFileDescriptor, LOCK_EX);
@@ -212,13 +210,30 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
 }
 
 bool wait_file_lock(const char *lock_file_path) {
-    int lockFileDescriptor = open(lock_file_path, O_RDONLY);
+    int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     if (lockFileDescriptor == -1)
-        lockFileDescriptor = open(lock_file_path, 64, 256);
-    while (flock(lockFileDescriptor, 6) != -1)
-        usleep(1000);
+        lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
     LOGD("retry lock file >> %s << %d", lock_file_path, lockFileDescriptor);
-    return flock(lockFileDescriptor, LOCK_EX) != -1;
+    while (flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1)
+        usleep(1000);
+//    int err_no = -1;
+//    do {
+//        if (err_no == -1) {
+//            usleep(1000);
+//        }
+//        err_no = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
+//        LOGD("err_no: %d", err_no);
+//    } while (err_no == -1);
+
+    int err_no = flock(lockFileDescriptor, LOCK_EX);
+    LOGD("err_no: %d", err_no);
+    bool ret = err_no != -1;
+    if (ret) {
+        LOGD("success to lock file >> %s <<", lock_file_path);
+    } else {
+        LOGD("failed to lock file >> %s <<", lock_file_path);
+    }
+    return ret;
 }
 
 void keep_alive_set_sid(JNIEnv *env, jclass jclazz) {
@@ -320,7 +335,7 @@ void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
     }
 
     if (waitpid(pid, NULL, 0) != pid)
-        LOGE("waitpid error\n");
+        LOGE("Oops!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! waitpid error");
 
     LOGD("do_daemon pid=%d ppid=%d", getpid(), getppid());
     do_daemon(env, jclazz, indicator_self_path, indicator_daemon_path, observer_self_path,

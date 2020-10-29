@@ -3,13 +3,14 @@ package com.keepalive.daemon.core;
 import java.lang.reflect.Field;
 
 public class IBinderManager {
-    private int a = a("TRANSACTION_startService", "START_SERVICE_TRANSACTION");
-    private int b = a("TRANSACTION_broadcastIntent", "BROADCAST_INTENT_TRANSACTION");
+    private int startService = invoke("TRANSACTION_startService",
+            "START_SERVICE_TRANSACTION");
+    private int broadcastIntent = invoke("TRANSACTION_broadcastIntent",
+            "BROADCAST_INTENT_TRANSACTION");
+    private int startInstrumentation = invoke("TRANSACTION_startInstrumentation",
+            "START_INSTRUMENTATION_TRANSACTION");
 
-    /* renamed from: c  reason: collision with root package name */
-    private int f5177c = a("TRANSACTION_startInstrumentation", "START_INSTRUMENTATION_TRANSACTION");
-
-    public int a(String str, String str2) {
+    public int invoke(String str, String str2) {
         try {
             Class<?> cls = Class.forName("android.app.IActivityManager$Stub");
             Field declaredField = cls.getDeclaredField(str);
@@ -27,19 +28,19 @@ public class IBinderManager {
         }
     }
 
-    public int a() {
-        return this.a;
+    public int startService() {
+        return startService;
     }
 
-    public int b() {
-        return this.b;
+    public int broadcastIntent() {
+        return broadcastIntent;
     }
 
-    public int c() {
-        return this.f5177c;
+    public int startInstrumentation() {
+        return startInstrumentation;
     }
 
-    public void b(Throwable th) {
+    public void thrown(Throwable th) {
         th.printStackTrace();
     }
 }

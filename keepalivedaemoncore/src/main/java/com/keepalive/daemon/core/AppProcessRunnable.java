@@ -1,25 +1,24 @@
 package com.keepalive.daemon.core;
 
-import android.content.Context;
-
 import com.keepalive.daemon.core.utils.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppProcessThread extends Thread {
+public class AppProcessRunnable implements Runnable {
+    private DaemonEnv env;
     private String[] strArr;
     private String str;
 
-    public AppProcessThread(Context context, String[] strArr, String str) {
-        this.str = str;
+    public AppProcessRunnable(DaemonEnv env, String[] strArr, String str) {
+        this.env = env;
         this.strArr = strArr;
+        this.str = str;
     }
 
     @Override
     public void run() {
-        DaemonEnv env = JavaDaemon.getInstance().env();
         DaemonEntity daemonEntity = new DaemonEntity();
         daemonEntity.str = str;
         daemonEntity.strArr = strArr;

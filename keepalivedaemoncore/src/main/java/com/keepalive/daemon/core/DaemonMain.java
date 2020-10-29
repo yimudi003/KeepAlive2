@@ -6,27 +6,43 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Process;
 
+import com.keepalive.daemon.core.scheduler.FutureScheduler;
+import com.keepalive.daemon.core.scheduler.SingleThreadFutureScheduler;
 import com.keepalive.daemon.core.utils.Logger;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 public class DaemonMain {
-    IBinderManager a = new IBinderManager();
-    public DaemonEntity b;
+    private IBinderManager binderManager = new IBinderManager();
+    public DaemonEntity daemonEntity;
 
-    private Parcel p1;
-    private Parcel d;
-    private Parcel e;
-    private IBinder f;
+    private Parcel p;
+    private Parcel p2;
+    private Parcel p3;
+    private IBinder binder;
 
-    public DaemonMain(DaemonEntity daemonEntity) {
-        b = daemonEntity;
+    private static volatile FutureScheduler futureScheduler;
+
+    private DaemonMain(DaemonEntity daemonEntity) {
+        this.daemonEntity = daemonEntity;
     }
 
     public static void main(String[] strArr) {
-        DaemonEntity a2 = DaemonEntity.create(strArr[0]);
-        if (a2 != null) {
-            new DaemonMain(a2).execute();
+        if (futureScheduler == null) {
+            synchronized (DaemonMain.class) {
+                if (futureScheduler == null) {
+                    futureScheduler = new SingleThreadFutureScheduler(
+                            "daemonmain-holder",
+                            true
+                    );
+                }
+            }
+        }
+
+        DaemonEntity entity = DaemonEntity.create(strArr[0]);
+        if (entity != null) {
+            new DaemonMain(entity).execute();
         }
         Process.killProcess(Process.myPid());
     }
@@ -34,124 +50,122 @@ public class DaemonMain {
     private void execute() {
         try {
             initAmsBinder();
-            f();
+            binder();
             NativeKeepAlive.nativeSetSid();
             try {
-                Logger.v(Logger.TAG, "setArgV0 " + b.b);
+                Logger.v(Logger.TAG, "setArgV0: " + daemonEntity.str);
                 Process.class.getMethod("setArgV0", new Class[]{String.class}).invoke(null,
-                        new Object[]{b.b});
-            } catch (Exception e) {
-                e.printStackTrace();
+                        new Object[]{daemonEntity.str});
+            } catch (Exception p3) {
+                p3.printStackTrace();
             }
-            for (int i = 1; i < b.a.length; i++) {
-                new DaemonThread(this, i).start();
+            for (int i = 1; i < daemonEntity.strArr.length; i++) {
+//                new DaemonThread(this, i).start();
+                futureScheduler.scheduleFuture(new DaemonRunnable(this, i), 0);
             }
-            Logger.v(Logger.TAG, b.b + " start lock File" + b.a[0]);
-            NativeKeepAlive.waitFileLock(b.a[0]);
+            Logger.v(Logger.TAG, daemonEntity.str + " start lock File" + daemonEntity.strArr[0]);
+            NativeKeepAlive.waitFileLock(daemonEntity.strArr[0]);
             Logger.v(Logger.TAG, "lock File finish");
-            d();
-            c();
-            b();
+            startService();
+            broadcastIntent();
+            startInstrumentation();
             Logger.v(Logger.TAG, "start android finish");
         } catch (Throwable th) {
-            a.b(th);
+            binderManager.thrown(th);
         }
     }
 
-    /* access modifiers changed from: private */
-    public void b() {
-        if (e != null) {
+    public void startInstrumentation() {
+        if (p3 != null) {
             try {
-                f.transact(a.c(), e, null, 1);
-            } catch (Exception e2) {
-                a.b(e2);
+                binder.transact(binderManager.startInstrumentation(), p3, null, 1);
+            } catch (Throwable th) {
+                binderManager.thrown(th);
             }
         }
     }
 
-    /* access modifiers changed from: private */
-    public void c() {
-        if (d != null) {
+    public void broadcastIntent() {
+        if (p2 != null) {
             try {
-                f.transact(a.b(), d, null, 1);
-            } catch (Exception e2) {
-                a.b(e2);
+                binder.transact(binderManager.broadcastIntent(), p2, null, 1);
+            } catch (Throwable th) {
+                binderManager.thrown(th);
             }
         }
     }
 
-    /* access modifiers changed from: private */
-    public void d() {
-        if (p1 != null) {
+    public void startService() {
+        if (p != null) {
             try {
-                f.transact(a.a(), p1, null, 1);
-            } catch (Exception e2) {
-                a.b(e2);
+                binder.transact(binderManager.startService(), p, null, 1);
+            } catch (Throwable th) {
+                binderManager.thrown(th);
             }
         }
     }
 
-    private void e() {
-        p1 = Parcel.obtain();
-        p1.writeInterfaceToken("android.app.IActivityManager");
-        p1.writeStrongBinder(null);
+    private void binder() {
+        b0();
+        b1();
+        b2();
+    }
+
+    private void b0() {
+        p = Parcel.obtain();
+        p.writeInterfaceToken("android.app.IActivityManager");
+        p.writeStrongBinder(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            p1.writeInt(1);
+            p.writeInt(1);
         }
-        b.intent.writeToParcel(p1, 0);
-        p1.writeString(null);
+        daemonEntity.intent.writeToParcel(p, 0);
+        p.writeString(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            p1.writeInt(0);
+            p.writeInt(0);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            p1.writeString(b.intent.getComponent().getPackageName());
+            p.writeString(daemonEntity.intent.getComponent().getPackageName());
         }
-        p1.writeInt(0);
-    }
-
-    private void f() {
-        e();
-        g();
-        h();
+        p.writeInt(0);
     }
 
     @SuppressLint("WrongConstant")
-    private void g() {
-        d = Parcel.obtain();
-        d.writeInterfaceToken("android.app.IActivityManager");
-        d.writeStrongBinder(null);
+    private void b1() {
+        p2 = Parcel.obtain();
+        p2.writeInterfaceToken("android.app.IActivityManager");
+        p2.writeStrongBinder(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            d.writeInt(1);
+            p2.writeInt(1);
         }
-        b.intent2.setFlags(32);
-        b.intent2.writeToParcel(d, 0);
-        d.writeString(null);
-        d.writeStrongBinder(null);
-        d.writeInt(-1);
-        d.writeString(null);
-        d.writeInt(0);
-        d.writeStringArray(null);
-        d.writeInt(-1);
-        d.writeInt(0);
-        d.writeInt(0);
-        d.writeInt(0);
-        d.writeInt(0);
+        daemonEntity.intent2.setFlags(32);
+        daemonEntity.intent2.writeToParcel(p2, 0);
+        p2.writeString(null);
+        p2.writeStrongBinder(null);
+        p2.writeInt(-1);
+        p2.writeString(null);
+        p2.writeInt(0);
+        p2.writeStringArray(null);
+        p2.writeInt(-1);
+        p2.writeInt(0);
+        p2.writeInt(0);
+        p2.writeInt(0);
+        p2.writeInt(0);
     }
 
-    private void h() {
-        e = Parcel.obtain();
-        e.writeInterfaceToken("android.app.IActivityManager");
+    private void b2() {
+        p3 = Parcel.obtain();
+        p3.writeInterfaceToken("android.app.IActivityManager");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            e.writeInt(1);
+            p3.writeInt(1);
         }
-        b.intent3.getComponent().writeToParcel(e, 0);
-        e.writeString(null);
-        e.writeInt(0);
-        e.writeInt(0);
-        e.writeStrongBinder(null);
-        e.writeStrongBinder(null);
-        e.writeInt(0);
-        e.writeString(null);
+        daemonEntity.intent3.getComponent().writeToParcel(p3, 0);
+        p3.writeString(null);
+        p3.writeInt(0);
+        p3.writeInt(0);
+        p3.writeStrongBinder(null);
+        p3.writeStrongBinder(null);
+        p3.writeInt(0);
+        p3.writeString(null);
     }
 
     private void initAmsBinder() {
@@ -160,32 +174,54 @@ public class DaemonMain {
             Object invoke = cls.getMethod("getDefault", new Class[0]).invoke(cls, new Object[0]);
             Field declaredField = invoke.getClass().getDeclaredField("mRemote");
             declaredField.setAccessible(true);
-            f = (IBinder) declaredField.get(invoke);
+            binder = (IBinder) declaredField.get(invoke);
 //            IBinder iBinder = (IBinder) Class.forName("android.os.ServiceManager").getMethod(
 //                    "getService", new Class[]{String.class}).invoke(null, new Object[]{"activity"});
-            Logger.v(Logger.TAG, "initAmsBinder: mRemote == iBinder " + f);
+            Logger.v(Logger.TAG, "initAmsBinder: mRemote == iBinder " + binder);
         } catch (Throwable th) {
-            a.b(th);
+            binderManager.thrown(th);
         }
     }
 
     static class DaemonThread extends Thread {
-        private DaemonMain thiz;
+        private WeakReference<DaemonMain> thiz;
         private int index;
 
-        public DaemonThread(DaemonMain thiz, int index) {
-            this.thiz = thiz;
+        private DaemonThread(DaemonMain thiz, int index) {
+            this.thiz = new WeakReference<>(thiz);
             this.index = index;
         }
 
         @Override
         public void run() {
             setPriority(10);
-            NativeKeepAlive.waitFileLock(thiz.b.a[index]);
+            Logger.v(Logger.TAG, "Thread lock File start: " + index);
+            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
             Logger.v(Logger.TAG, "Thread lock File finish");
-            thiz.d();
-            thiz.c();
-            thiz.b();
+            thiz.get().startService();
+            thiz.get().broadcastIntent();
+            thiz.get().startInstrumentation();
+            Logger.v(Logger.TAG, "Thread start android finish");
+        }
+    }
+
+    class DaemonRunnable implements Runnable {
+        private WeakReference<DaemonMain> thiz;
+        private int index;
+
+        private DaemonRunnable(DaemonMain thiz, int index) {
+            this.thiz = new WeakReference<>(thiz);
+            this.index = index;
+        }
+
+        @Override
+        public void run() {
+            Logger.v(Logger.TAG, "Thread lock File start: " + index);
+            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
+            Logger.v(Logger.TAG, "Thread lock File finish");
+            thiz.get().startService();
+            thiz.get().broadcastIntent();
+            thiz.get().startInstrumentation();
             Logger.v(Logger.TAG, "Thread start android finish");
         }
     }

@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.keepalive.daemon.core.R;
 import com.keepalive.daemon.core.component.DaemonBaseService;
 import com.keepalive.daemon.core.utils.Logger;
 
@@ -25,9 +26,10 @@ public class NotifyResidentService extends DaemonBaseService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.v(Logger.TAG, "!!!!!!!!!!!!!!! intent: " + intent + ", startId: " + startId);
         try {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG);
-            builder.setContentTitle("Title");
-            builder.setContentText("Text");
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG)
+                    .setContentTitle("Title")
+                    .setContentText("Text")
+                    .setSmallIcon(R.drawable.ic_launcher);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationManagerCompat
                         .from(this)

@@ -16,15 +16,21 @@ public class KeepAlive {
 
     KeepAliveConfigs mConfigurations;
 
-    static KeepAlive client;
+    protected volatile static KeepAlive client;
 
     private KeepAlive(KeepAliveConfigs configurations) {
         this.mConfigurations = configurations;
     }
 
     public static void init(Context base, KeepAliveConfigs configurations) {
-        client = new KeepAlive(configurations);
-        client.initDaemon(base);
+        if (client == null) {
+            synchronized (KeepAlive.class) {
+                if (client == null) {
+                    client = new KeepAlive(configurations);
+                    client.initDaemon(base);
+                }
+            }
+        }
     }
 
 

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 
+import com.keepalive.daemon.core.scheduler.FutureScheduler;
+import com.keepalive.daemon.core.scheduler.SingleThreadFutureScheduler;
 import com.keepalive.daemon.core.utils.Logger;
 import com.keepalive.daemon.core.utils.Utils;
 
@@ -13,8 +15,19 @@ import java.util.List;
 public class JavaDaemon {
     private static final String COLON_SEPARATOR = ":";
     private DaemonEnv env;
+    private static volatile FutureScheduler futureScheduler;
 
     private JavaDaemon() {
+        if (futureScheduler == null) {
+            synchronized (JavaDaemon.class) {
+                if (futureScheduler == null) {
+                    futureScheduler = new SingleThreadFutureScheduler(
+                            "javadaemon-holder",
+                            true
+                    );
+                }
+            }
+        }
     }
 
     private static class Holder {
@@ -31,7 +44,7 @@ public class JavaDaemon {
 
     public void fire(Context context, Intent intent, Intent intent2, Intent intent3) {
         Logger.i(Logger.TAG, "################################################### fire!!!");
-        env = new DaemonEnv();
+        DaemonEnv env = new DaemonEnv();
         ApplicationInfo applicationInfo = context.getApplicationInfo();
         env.publicSourceDir = applicationInfo.publicSourceDir;
         env.nativeLibraryDir = applicationInfo.nativeLibraryDir;
@@ -39,23 +52,25 @@ public class JavaDaemon {
         env.intent2 = intent2;
         env.intent3 = intent3;
         env.processName = Utils.getProcessName();
-        Logger.v(Logger.TAG, "new DaemonEnv: " + env);
+
+        String[] strArr = {"daemon", "assist1", "assist2"};
+        fire(context, env, strArr);
     }
 
-    public void fire(Context context, String[] strArr) {
+    private void fire(Context context, DaemonEnv env, String[] strArr) {
         boolean z;
         String processName = Utils.getProcessName();
         Logger.v(Logger.TAG, "processName : " + processName);
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
             String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
-            List arrayList = new ArrayList();
+            List<String> list = new ArrayList();
             if (strArr != null) {
                 z = false;
                 for (String str : strArr) {
                     if (str.equals(substring)) {
                         z = true;
                     } else {
-                        arrayList.add(str);
+                        list.add(str);
                     }
                 }
             } else {
@@ -63,13 +78,14 @@ public class JavaDaemon {
             }
             if (z) {
                 Logger.v(Logger.TAG, "app lock file start: " + substring);
-                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + substring + "_daemon");
+                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + substring + "_d");
                 Logger.v(Logger.TAG, "app lock file finish");
-                String[] strArr2 = new String[arrayList.size()];
+                String[] strArr2 = new String[list.size()];
                 for (int i = 0; i < strArr2.length; i++) {
-                    strArr2[i] = context.getFilesDir() + "/" + arrayList.get(i) + "_daemon";
+                    strArr2[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-                new AppProcessThread(context, strArr2, "daemon").start();
+//                new AppProcessThread(context, strArr2, "daemon").start();
+                futureScheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
             }
         }
     }

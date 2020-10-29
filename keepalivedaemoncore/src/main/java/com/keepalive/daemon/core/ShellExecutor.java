@@ -7,77 +7,84 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Map;
 
 public class ShellExecutor {
     private static final String COLON_SEPARATOR = ":";
 
-    public static void execute(File file, Map map, String[] strArr) {
-        if (strArr.length > 0) {
-            Logger.v(Logger.TAG, "file: " + file + ", strArr: " + Arrays.toString(strArr));
-            ProcessBuilder processBuilder = new ProcessBuilder(new String[0]);
-            String str = System.getenv("PATH");
-            if (str != null) {
-                String[] split = str.split(COLON_SEPARATOR);
+    public static void execute(File dir, Map map, String[] cmds) {
+        if (cmds.length == 0) {
+            return;
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(new String[0]);
+            String envPath = System.getenv("PATH");
+            Logger.v(Logger.TAG, "ENV PATH: " + envPath);
+            if (envPath != null) {
+                String[] split = envPath.split(COLON_SEPARATOR);
                 int length = split.length;
                 int i = 0;
                 while (true) {
                     if (i >= length) {
                         break;
                     }
-                    File file2 = new File(split[i], "sh");
-                    if (file2.exists()) {
-                        processBuilder.command(new String[]{file2.getPath()}).redirectErrorStream(true);
+                    File f = new File(split[i], "sh");
+                    if (f.exists()) {
+                        builder.command(new String[]{f.getPath()}).redirectErrorStream(true);
                         break;
                     }
                     i++;
                 }
             }
-            processBuilder.directory(file);
-            Map<String, String> environment = processBuilder.environment();
+            builder.directory(dir);
+            Map<String, String> environment = builder.environment();
             environment.putAll(System.getenv());
             if (map != null) {
                 environment.putAll(map);
             }
             StringBuilder sb = new StringBuilder();
-            for (String append : strArr) {
+            for (String append : cmds) {
                 sb.append(append);
                 sb.append("\n");
             }
 
+            Process proc = builder.start();
+            OutputStream os = proc.getOutputStream();
             try {
-                Process process = processBuilder.start();
-                OutputStream outputStream = process.getOutputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-                        process.getInputStream(), "utf-8"));
-                for (String str2 : strArr) {
-                    if (str2.endsWith("\n")) {
-                        outputStream.write(str2.getBytes());
+                BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(),
+                        "utf-8"));
+                for (String cmd : cmds) {
+                    if (cmd.endsWith("\n")) {
+                        os.write(cmd.getBytes());
                     } else {
-                        outputStream.write((str2 + "\n").getBytes());
+                        os.write((cmd + "\n").getBytes());
                     }
                 }
-                outputStream.write("exit 156\n".getBytes());
-                outputStream.flush();
-                process.waitFor();
-                read(bufferedReader);
-            } catch (Throwable th) {
-                th.printStackTrace();
+                os.write("exit 156\n".getBytes());
+                os.flush();
+                proc.waitFor();
+                read(br);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (os != null) {
+                    os.close();
+                }
             }
+        } catch (Throwable th) {
+            th.printStackTrace();
         }
     }
 
-    private static String read(BufferedReader bufferedReader) throws IOException {
+    private static String read(BufferedReader br) throws IOException {
         StringBuilder sb = new StringBuilder();
-        String readLine = bufferedReader.readLine();
-        Logger.v(Logger.TAG, "readString: " + readLine);
-        while (readLine != null) {
-            Logger.v(Logger.TAG, "readString: " + readLine);
+        String readLine;
+        while ((readLine = br.readLine()) != null) {
             sb.append(readLine);
             sb.append("\n");
-            readLine = bufferedReader.readLine();
         }
+        Logger.v(Logger.TAG, "read: " + sb);
         return sb.toString();
     }
 }

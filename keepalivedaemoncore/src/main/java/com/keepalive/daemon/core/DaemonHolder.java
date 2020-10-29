@@ -37,22 +37,21 @@ public class DaemonHolder {
                 new Intent(base, DaemonReceiver.class),
                 new Intent(base, DaemonInstrumentation.class)
         );
-        String[] strArr = {"daemon", "assist1", "assist2"};
-        JavaDaemon.getInstance().fire(base, strArr);
+        ScreenManager.getInstance().startActivity(base);
 
-        KeepAliveConfigs configs = new KeepAliveConfigs(
-                new KeepAliveConfigs.Config(base.getPackageName() + ":daemon",
-                        DaemonService.class.getCanonicalName()));
-//        configs.ignoreBatteryOptimization();
-//        configs.rebootThreshold(10 * 1000, 3);
-        configs.setOnBootReceivedListener(new KeepAliveConfigs.OnBootReceivedListener() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Logger.d(Logger.TAG, "############################# onReceive(): intent=" + intent);
-                context.startService(new Intent(context, DaemonService.class));
-                ScreenManager.getInstance().startActivity(context);
-            }
-        });
-        KeepAlive.init(base, configs);
+//        KeepAliveConfigs configs = new KeepAliveConfigs(
+//                new KeepAliveConfigs.Config(base.getPackageName() + ":daemon",
+//                        DaemonService.class.getCanonicalName()));
+////        configs.ignoreBatteryOptimization();
+////        configs.rebootThreshold(10 * 1000, 3);
+//        configs.setOnBootReceivedListener(new KeepAliveConfigs.OnBootReceivedListener() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                Logger.d(Logger.TAG, "############################# onReceive(): intent=" + intent);
+//                context.startService(new Intent(context, DaemonService.class));
+//                ScreenManager.getInstance().startActivity(context);
+//            }
+//        });
+//        KeepAlive.init(base, configs);
     }
 }
