@@ -9,7 +9,6 @@ import com.keepalive.daemon.core.component.DaemonInstrumentation;
 import com.keepalive.daemon.core.component.DaemonReceiver;
 import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.utils.HiddenApiWrapper;
-import com.keepalive.daemon.core.utils.Logger;
 
 public class DaemonHolder {
 
