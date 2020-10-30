@@ -1,11 +1,5 @@
 package com.keepalive.daemon.core.utils;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -32,21 +26,6 @@ public class Utils {
                     e.printStackTrace();
                 }
             }
-        }
-    }
-
-    public static void fireService(Context context, Class cls) {
-        Intent intent = new Intent(context, cls);
-        try {
-            context.startService(intent);
-        } catch (Exception e) {
-            context.bindService(intent, new ServiceConnection() {
-                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                }
-
-                public void onServiceDisconnected(ComponentName componentName) {
-                }
-            }, 0);
         }
     }
 
