@@ -214,8 +214,12 @@ bool wait_file_lock(const char *lock_file_path) {
     if (lockFileDescriptor == -1)
         lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
     LOGD("retry lock file >> %s << %d", lock_file_path, lockFileDescriptor);
-    while (flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1)
+    int try_time = 0;
+    while (try_time < 5 && flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) {
+        try_time++;
+        LOGD("Persistent lock myself failed and try again as %d times", try_time);
         usleep(1000);
+    }
 //    int err_no = -1;
 //    do {
 //        if (err_no == -1) {

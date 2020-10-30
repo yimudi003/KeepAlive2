@@ -1,7 +1,5 @@
 package com.keepalive.daemon.core;
 
-import android.content.Context;
-
 import com.keepalive.daemon.core.utils.Logger;
 
 import java.io.File;
@@ -9,23 +7,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppProcessThread extends Thread {
+    private DaemonEnv env;
     private String[] strArr;
     private String str;
 
-    public AppProcessThread(Context context, String[] strArr, String str) {
+    public AppProcessThread(DaemonEnv env, String[] strArr, String str) {
+        this.env = env;
         this.str = str;
         this.strArr = strArr;
     }
 
     @Override
     public void run() {
-        DaemonEnv env = JavaDaemon.getInstance().env();
-        DaemonEntity daemonEntity = new DaemonEntity();
-        daemonEntity.str = str;
-        daemonEntity.strArr = strArr;
-        daemonEntity.intent = env.intent;
-        daemonEntity.intent2 = env.intent2;
-        daemonEntity.intent3 = env.intent3;
+        DaemonEntity entity = new DaemonEntity();
+        entity.str = str;
+        entity.strArr = strArr;
+        entity.intent = env.intent;
+        entity.intent2 = env.intent2;
+        entity.intent3 = env.intent3;
 
         List<String> list = new ArrayList();
         list.add("export CLASSPATH=$CLASSPATH:" + env.publicSourceDir);
@@ -35,14 +34,14 @@ public class AppProcessThread extends Thread {
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
                     new Object[]{new File("/system/bin/app_process").exists() ?
                             "app_process" : "app_process", DaemonMain.class.getName(),
-                            daemonEntity.toString(), str}));
+                            entity.toString(), str}));
         } else {
             list.add("export _LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add("export LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
                     new Object[]{new File("/system/bin/app_process32").exists() ?
                             "app_process32" : "app_process", DaemonMain.class.getName(),
-                            daemonEntity.toString(), str}));
+                            entity.toString(), str}));
         }
         Logger.i(Logger.TAG, "cmds: " + list);
         File file = new File("/");

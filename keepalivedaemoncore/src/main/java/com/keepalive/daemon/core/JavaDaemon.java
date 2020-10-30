@@ -10,11 +10,11 @@ import com.keepalive.daemon.core.utils.Logger;
 import com.keepalive.daemon.core.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JavaDaemon {
     private static final String COLON_SEPARATOR = ":";
-    private DaemonEnv env;
     private static volatile FutureScheduler futureScheduler;
 
     private JavaDaemon() {
@@ -38,12 +38,7 @@ public class JavaDaemon {
         return Holder.INSTANCE;
     }
 
-    public DaemonEnv env() {
-        return env;
-    }
-
     public void fire(Context context, Intent intent, Intent intent2, Intent intent3) {
-        Logger.i(Logger.TAG, "################################################### fire!!!");
         DaemonEnv env = new DaemonEnv();
         ApplicationInfo applicationInfo = context.getApplicationInfo();
         env.publicSourceDir = applicationInfo.publicSourceDir;
@@ -58,9 +53,11 @@ public class JavaDaemon {
     }
 
     private void fire(Context context, DaemonEnv env, String[] strArr) {
+        Logger.i(Logger.TAG, "############################################## !!! fire(): " +
+                "env=" + env + ", strArr=" + Arrays.toString(strArr));
         boolean z;
         String processName = Utils.getProcessName();
-        Logger.v(Logger.TAG, "processName : " + processName);
+        Logger.v(Logger.TAG, "processName: " + processName);
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
             String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
