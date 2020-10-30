@@ -2,6 +2,7 @@ package com.keepalive.daemon.core.notification;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -11,10 +12,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.keepalive.daemon.core.R;
-import com.keepalive.daemon.core.component.DaemonBaseService;
 import com.keepalive.daemon.core.utils.Logger;
+import com.keepalive.daemon.core.utils.ServiceHolder;
 
-public class NotifyResidentService extends DaemonBaseService {
+public class NotifyResidentService extends Service {
 
     @Nullable
     @Override
@@ -23,8 +24,9 @@ public class NotifyResidentService extends DaemonBaseService {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Logger.v(Logger.TAG, "!!!!!!!!!!!!!!! intent: " + intent + ", startId: " + startId);
+    public void onCreate() {
+        super.onCreate();
+
         try {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG)
                     .setContentTitle("Title")
@@ -40,8 +42,13 @@ public class NotifyResidentService extends DaemonBaseService {
             }
             startForeground(9999, builder.build());
         } catch (Exception e) {
-            Logger.e(Logger.TAG, "error : " + e, e);
+            e.printStackTrace();
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        ServiceHolder.getInstance().bindService(this, null);
         return super.onStartCommand(intent, flags, startId);
     }
 }

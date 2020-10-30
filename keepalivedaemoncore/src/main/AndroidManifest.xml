@@ -14,7 +14,11 @@
         <service
             android:name="com.keepalive.daemon.core.component.DaemonService"
             android:exported="true"
-            android:process=":daemon" />
+            android:process=":daemon">
+            <intent-filter>
+                <action android:name="${applicationId}.monitor.bindService" />
+            </intent-filter>
+        </service>
 
         <service
             android:name="com.keepalive.daemon.core.component.AssistService1"
