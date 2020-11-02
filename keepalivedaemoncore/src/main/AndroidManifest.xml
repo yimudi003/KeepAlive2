@@ -50,13 +50,5 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
-        <activity
-            android:name="com.keepalive.daemon.core.activity.SinglePixelActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="false"
-            android:launchMode="singleInstance"
-            android:theme="@style/SingleActivityStyle" />
     </application>
 </manifest>

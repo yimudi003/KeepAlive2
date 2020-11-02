@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 
+import androidx.core.content.ContextCompat;
+
+import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.scheduler.FutureScheduler;
 import com.keepalive.daemon.core.scheduler.SingleThreadFutureScheduler;
 import com.keepalive.daemon.core.utils.Logger;
@@ -84,6 +87,8 @@ public class JavaDaemon {
 //                new AppProcessThread(context, strArr2, "daemon").start();
                 futureScheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
             }
+        } else if (processName.equals(context.getPackageName())) {
+            ContextCompat.startForegroundService(context, new Intent(context, DaemonService.class));
         }
     }
 }

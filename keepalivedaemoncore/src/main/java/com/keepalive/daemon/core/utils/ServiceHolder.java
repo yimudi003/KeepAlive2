@@ -9,7 +9,12 @@ import android.os.IBinder;
 
 import com.keepalive.daemon.core.IMonitorService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ServiceHolder {
+
+    private static Map<ServiceConnection, Boolean> connCache = new HashMap<>();
 
     private ServiceHolder() {
     }
@@ -37,6 +42,7 @@ public class ServiceHolder {
                 listener.onServiceConnection(this, false);
             }
             isConnected = false;
+            connCache.put(this, false);
         }
 
         @Override
@@ -48,6 +54,7 @@ public class ServiceHolder {
                 listener.onServiceConnection(this, true);
             }
             isConnected = true;
+            connCache.put(this, true);
         }
 
         private boolean isConnected() {
@@ -63,16 +70,21 @@ public class ServiceHolder {
                                OnServiceConnectionListener listener) {
         Intent bindIntent = new Intent(context, clazz);
         bindIntent.setAction(context.getPackageName() + ".monitor.bindService");
+        Logger.i(Logger.TAG, "call bindService(): " + bindIntent);
         return context.bindService(bindIntent,
                 new ServiceConnectionImpl(listener),
                 Context.BIND_AUTO_CREATE
         );
     }
 
-    public void unbindService(Context context, ServiceConnectionImpl connection) {
-        if (connection != null && connection.isConnected()) {
+    public void unbindService(Context context, ServiceConnection connection) {
+        if (connection != null && ((ServiceConnectionImpl) connection).isConnected()) {
             try {
+                Logger.i(Logger.TAG, "call unbindService(): " + connection);
                 context.unbindService(connection);
+                if (connCache.containsKey(connection)) {
+                    connCache.remove(connection);
+                }
             } catch (Throwable th) {
                 th.printStackTrace();
             }

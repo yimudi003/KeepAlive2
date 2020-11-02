@@ -1,13 +1,12 @@
 package com.keepalive.daemon.core.receiver;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.keepalive.daemon.core.KeepAlive;
 import com.keepalive.daemon.core.KeepAliveConfigs;
+import com.keepalive.daemon.core.component.DaemonReceiver;
 
-public class AutoBootReceiver extends BroadcastReceiver {
+public class AutoBootReceiver extends DaemonReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (KeepAliveConfigs.bootReceivedListener != null) {

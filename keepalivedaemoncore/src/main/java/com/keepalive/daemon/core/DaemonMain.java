@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 
 public class DaemonMain {
     private IBinderManager binderManager = new IBinderManager();
-    public DaemonEntity daemonEntity;
+    public DaemonEntity entity;
 
     private Parcel p;
     private Parcel p2;
@@ -24,8 +24,8 @@ public class DaemonMain {
 
     private static volatile FutureScheduler futureScheduler;
 
-    private DaemonMain(DaemonEntity daemonEntity) {
-        this.daemonEntity = daemonEntity;
+    private DaemonMain(DaemonEntity entity) {
+        this.entity = entity;
     }
 
     public static void main(String[] strArr) {
@@ -53,18 +53,18 @@ public class DaemonMain {
             binder();
             NativeKeepAlive.nativeSetSid();
             try {
-                Logger.v(Logger.TAG, "setArgV0: " + daemonEntity.str);
+                Logger.v(Logger.TAG, "setArgV0: " + entity.str);
                 Process.class.getMethod("setArgV0", new Class[]{String.class}).invoke(null,
-                        new Object[]{daemonEntity.str});
+                        new Object[]{entity.str});
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            for (int i = 1; i < daemonEntity.strArr.length; i++) {
+            for (int i = 1; i < entity.strArr.length; i++) {
 //                new DaemonThread(this, i).start();
                 futureScheduler.scheduleFuture(new DaemonRunnable(this, i), 0);
             }
-            Logger.v(Logger.TAG, daemonEntity.str + " start lock File" + daemonEntity.strArr[0]);
-            NativeKeepAlive.waitFileLock(daemonEntity.strArr[0]);
+            Logger.v(Logger.TAG, entity.str + " start lock File" + entity.strArr[0]);
+            NativeKeepAlive.waitFileLock(entity.strArr[0]);
             Logger.v(Logger.TAG, "lock File finish");
             startService();
             broadcastIntent();
@@ -118,13 +118,13 @@ public class DaemonMain {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             p.writeInt(1);
         }
-        daemonEntity.intent.writeToParcel(p, 0);
+        entity.intent.writeToParcel(p, 0);
         p.writeString(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             p.writeInt(0);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            p.writeString(daemonEntity.intent.getComponent().getPackageName());
+            p.writeString(entity.intent.getComponent().getPackageName());
         }
         p.writeInt(0);
     }
@@ -137,8 +137,8 @@ public class DaemonMain {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             p2.writeInt(1);
         }
-        daemonEntity.intent2.setFlags(32);
-        daemonEntity.intent2.writeToParcel(p2, 0);
+        entity.intent2.setFlags(32);
+        entity.intent2.writeToParcel(p2, 0);
         p2.writeString(null);
         p2.writeStrongBinder(null);
         p2.writeInt(-1);
@@ -158,7 +158,7 @@ public class DaemonMain {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             p3.writeInt(1);
         }
-        daemonEntity.intent3.getComponent().writeToParcel(p3, 0);
+        entity.intent3.getComponent().writeToParcel(p3, 0);
         p3.writeString(null);
         p3.writeInt(0);
         p3.writeInt(0);
@@ -204,7 +204,7 @@ public class DaemonMain {
 //        public void run() {
 //            setPriority(10);
 //            Logger.v(Logger.TAG, "Thread lock File start: " + index);
-//            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
+//            NativeKeepAlive.waitFileLock(thiz.get().entity.strArr[index]);
 //            Logger.v(Logger.TAG, "Thread lock File finish");
 //            thiz.get().startService();
 //            thiz.get().broadcastIntent();
@@ -225,7 +225,7 @@ public class DaemonMain {
         @Override
         public void run() {
             Logger.v(Logger.TAG, "Thread lock File start: " + index);
-            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
+            NativeKeepAlive.waitFileLock(thiz.get().entity.strArr[index]);
             Logger.v(Logger.TAG, "Thread lock File finish");
             thiz.get().startService();
             thiz.get().broadcastIntent();

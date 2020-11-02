@@ -127,7 +127,7 @@ int lock_file(const char *lock_file_path) {
         lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
         LOGD("open [%s] : %d", lock_file_path, lockFileDescriptor);
     }
-    int lockRet = flock(lockFileDescriptor, LOCK_EX);
+    int lockRet = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
     LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, lockRet);
     if (lockRet == -1) {
         LOGE("lock file failed >> %s <<", lock_file_path);

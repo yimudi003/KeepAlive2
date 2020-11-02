@@ -11,6 +11,6 @@ public class App extends Application {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         Logger.v(Logger.TAG, "attachBaseContext");
-        DaemonHolder.getInstance().attach(base);
+        DaemonHolder.getInstance().attach(base, this);
     }
 }
