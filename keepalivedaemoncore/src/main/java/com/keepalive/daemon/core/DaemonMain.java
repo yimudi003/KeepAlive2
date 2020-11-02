@@ -56,8 +56,8 @@ public class DaemonMain {
                 Logger.v(Logger.TAG, "setArgV0: " + daemonEntity.str);
                 Process.class.getMethod("setArgV0", new Class[]{String.class}).invoke(null,
                         new Object[]{daemonEntity.str});
-            } catch (Exception p3) {
-                p3.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             for (int i = 1; i < daemonEntity.strArr.length; i++) {
 //                new DaemonThread(this, i).start();
@@ -172,38 +172,46 @@ public class DaemonMain {
         try {
             Class<?> cls = Class.forName("android.app.ActivityManagerNative");
             Object invoke = cls.getMethod("getDefault", new Class[0]).invoke(cls, new Object[0]);
-            Field declaredField = invoke.getClass().getDeclaredField("mRemote");
-            declaredField.setAccessible(true);
-            binder = (IBinder) declaredField.get(invoke);
-//            IBinder iBinder = (IBinder) Class.forName("android.os.ServiceManager").getMethod(
-//                    "getService", new Class[]{String.class}).invoke(null, new Object[]{"activity"});
+            Field field = invoke.getClass().getDeclaredField("mRemote");
+            field.setAccessible(true);
+            binder = (IBinder) field.get(invoke);
             Logger.v(Logger.TAG, "initAmsBinder: mRemote == iBinder " + binder);
         } catch (Throwable th) {
             binderManager.thrown(th);
         }
-    }
 
-    static class DaemonThread extends Thread {
-        private WeakReference<DaemonMain> thiz;
-        private int index;
-
-        private DaemonThread(DaemonMain thiz, int index) {
-            this.thiz = new WeakReference<>(thiz);
-            this.index = index;
-        }
-
-        @Override
-        public void run() {
-            setPriority(10);
-            Logger.v(Logger.TAG, "Thread lock File start: " + index);
-            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
-            Logger.v(Logger.TAG, "Thread lock File finish");
-            thiz.get().startService();
-            thiz.get().broadcastIntent();
-            thiz.get().startInstrumentation();
-            Logger.v(Logger.TAG, "Thread start android finish");
+        if (binder == null) {
+            try {
+                binder = (IBinder) Class.forName("android.os.ServiceManager").getMethod(
+                        "getService", new Class[]{String.class}).invoke(null,
+                        new Object[]{"activity"});
+            } catch (Throwable th) {
+                binderManager.thrown(th);
+            }
         }
     }
+
+//    static class DaemonThread extends Thread {
+//        private WeakReference<DaemonMain> thiz;
+//        private int index;
+//
+//        private DaemonThread(DaemonMain thiz, int index) {
+//            this.thiz = new WeakReference<>(thiz);
+//            this.index = index;
+//        }
+//
+//        @Override
+//        public void run() {
+//            setPriority(10);
+//            Logger.v(Logger.TAG, "Thread lock File start: " + index);
+//            NativeKeepAlive.waitFileLock(thiz.get().daemonEntity.strArr[index]);
+//            Logger.v(Logger.TAG, "Thread lock File finish");
+//            thiz.get().startService();
+//            thiz.get().broadcastIntent();
+//            thiz.get().startInstrumentation();
+//            Logger.v(Logger.TAG, "Thread start android finish");
+//        }
+//    }
 
     class DaemonRunnable implements Runnable {
         private WeakReference<DaemonMain> thiz;

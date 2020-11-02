@@ -2,11 +2,11 @@ package com.keepalive.daemon.core;
 
 public class NativeKeepAlive {
 
-    public static native void lockFile(String str);
+    public static native void lockFile(String lockFile);
 
     public static native void nativeSetSid();
 
-    public static native void waitFileLock(String str);
+    public static native void waitFileLock(String lockFile);
 
     public static native void doDaemon(String indicatorSelfPath,
                                        String indicatorDaemonPath,

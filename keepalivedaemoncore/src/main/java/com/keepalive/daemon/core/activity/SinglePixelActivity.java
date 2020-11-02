@@ -44,8 +44,8 @@ public class SinglePixelActivity extends Activity {
     @Override
     protected void onDestroy() {
         Logger.d(Logger.TAG, "one pixel activity --- onDestroy");
-        ContextCompat.startForegroundService(this,
-                new Intent(this, DaemonService.class));
+//        ContextCompat.startForegroundService(this,
+//                new Intent(this, DaemonService.class));
         super.onDestroy();
     }
 

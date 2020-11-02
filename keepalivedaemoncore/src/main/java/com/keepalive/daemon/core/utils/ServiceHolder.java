@@ -8,7 +8,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 
 import com.keepalive.daemon.core.IMonitorService;
-import com.keepalive.daemon.core.component.DaemonService;
 
 public class ServiceHolder {
 
@@ -60,9 +59,9 @@ public class ServiceHolder {
         }
     }
 
-    public boolean bindService(Context context,
+    public boolean bindService(Context context, Class<? extends Service> clazz,
                                OnServiceConnectionListener listener) {
-        Intent bindIntent = new Intent(context, DaemonService.class);
+        Intent bindIntent = new Intent(context, clazz);
         bindIntent.setAction(context.getPackageName() + ".monitor.bindService");
         return context.bindService(bindIntent,
                 new ServiceConnectionImpl(listener),

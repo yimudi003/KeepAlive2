@@ -12,8 +12,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.keepalive.daemon.core.R;
-import com.keepalive.daemon.core.utils.Logger;
+import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.utils.ServiceHolder;
+
+import static com.keepalive.daemon.core.utils.Logger.TAG;
 
 public class NotifyResidentService extends Service {
 
@@ -28,7 +30,7 @@ public class NotifyResidentService extends Service {
         super.onCreate();
 
         try {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, TAG)
                     .setContentTitle("Title")
                     .setContentText("Text")
                     .setSmallIcon(R.drawable.ic_launcher);
@@ -36,8 +38,8 @@ public class NotifyResidentService extends Service {
                 NotificationManagerCompat
                         .from(this)
                         .createNotificationChannel(new NotificationChannel(
-                                Logger.TAG,
-                                Logger.TAG,
+                                TAG,
+                                TAG,
                                 NotificationManager.IMPORTANCE_LOW));
             }
             startForeground(9999, builder.build());
@@ -48,7 +50,7 @@ public class NotifyResidentService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ServiceHolder.getInstance().bindService(this, null);
+        ServiceHolder.getInstance().bindService(this, DaemonService.class, null);
         return super.onStartCommand(intent, flags, startId);
     }
 }

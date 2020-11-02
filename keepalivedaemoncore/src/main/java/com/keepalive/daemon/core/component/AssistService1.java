@@ -14,6 +14,6 @@ public class AssistService1 extends DaemonProcessService {
     @Override
     public void onCreate() {
         super.onCreate();
-        ServiceHolder.getInstance().bindService(this, null);
+        ServiceHolder.getInstance().bindService(this, DaemonService.class, null);
     }
 }

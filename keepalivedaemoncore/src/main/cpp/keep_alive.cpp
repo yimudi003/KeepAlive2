@@ -107,10 +107,10 @@ void create_file_if_not_exist(char *path) {
 
 void notify_and_waitfor(const char *observer_self_path, const char *observer_daemon_path) {
     int observer_self_descriptor = open(observer_self_path, O_RDONLY | O_LARGEFILE);
-    LOGD("open %s %d", observer_self_path, observer_self_descriptor);
+    LOGD("open [%s] : %d", observer_self_path, observer_self_descriptor);
     if (observer_self_descriptor == -1) {
         observer_self_descriptor = open(observer_self_path, O_CREAT, S_IRUSR | S_IWUSR);
-        LOGD("open %s %d", observer_self_path, observer_self_descriptor);
+        LOGD("open [%s] : %d", observer_self_path, observer_self_descriptor);
     }
     while (open(observer_daemon_path, O_RDONLY | O_LARGEFILE) == -1) {
         usleep(1000);
@@ -122,13 +122,13 @@ void notify_and_waitfor(const char *observer_self_path, const char *observer_dae
 int lock_file(const char *lock_file_path) {
     LOGD("start try to lock file >> %s <<", lock_file_path);
     int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
-    LOGD("open %s %d", lock_file_path, lockFileDescriptor);
+    LOGD("open [%s] : %d", lock_file_path, lockFileDescriptor);
     if (lockFileDescriptor == -1) {
         lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
-        LOGD("open %s %d", lock_file_path, lockFileDescriptor);
+        LOGD("open [%s] : %d", lock_file_path, lockFileDescriptor);
     }
     int lockRet = flock(lockFileDescriptor, LOCK_EX);
-    LOGD("flock %s %d %d", lock_file_path, lockFileDescriptor, lockRet);
+    LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, lockRet);
     if (lockRet == -1) {
         LOGE("lock file failed >> %s <<", lock_file_path);
         return 0;
@@ -213,30 +213,22 @@ bool wait_file_lock(const char *lock_file_path) {
     int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     if (lockFileDescriptor == -1)
         lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
-    LOGD("retry lock file >> %s << %d", lock_file_path, lockFileDescriptor);
-    int try_time = 0;
-    while (try_time < 5 && flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) {
-        try_time++;
-        LOGD("Persistent lock myself failed and try again as %d times", try_time);
+//    int try_time = 0;
+    while (/*try_time < 5 && */flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) {
+//        ++try_time;
+//        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
         usleep(1000);
     }
-//    int err_no = -1;
-//    do {
-//        if (err_no == -1) {
-//            usleep(1000);
-//        }
-//        err_no = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
-//        LOGD("err_no: %d", err_no);
-//    } while (err_no == -1);
 
     int err_no = flock(lockFileDescriptor, LOCK_EX);
-    LOGD("err_no: %d", err_no);
+    LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
     bool ret = err_no != -1;
     if (ret) {
         LOGD("success to lock file >> %s <<", lock_file_path);
     } else {
         LOGD("failed to lock file >> %s <<", lock_file_path);
     }
+    LOGD("retry lock file >> %s << %d", lock_file_path, err_no);
     return ret;
 }
 
