@@ -1,21 +1,17 @@
 package com.keepalive.daemon.core.component;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.keepalive.daemon.core.IMonitorService;
-import com.keepalive.daemon.core.R;
 import com.keepalive.daemon.core.utils.Logger;
+import com.keepalive.daemon.core.utils.NotificationUtil;
 
 public abstract class DaemonBaseService extends Service {
 
@@ -32,25 +28,16 @@ public abstract class DaemonBaseService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        try {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Logger.TAG)
-                    .setContentTitle("Title")
-                    .setContentText("Text")
-                    .setSmallIcon(R.drawable.ic_launcher);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationManagerCompat
-                        .from(this)
-                        .createNotificationChannel(new NotificationChannel(
-                                Logger.TAG,
-                                Logger.TAG,
-                                NotificationManager.IMPORTANCE_LOW));
-            }
-            startForeground(9999, builder.build());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Notification noti = NotificationUtil.createNotification(
+                this,
+                0,
+                null,
+                null,
+                null
+        );
+        NotificationUtil.showNotification(this, noti);
     }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

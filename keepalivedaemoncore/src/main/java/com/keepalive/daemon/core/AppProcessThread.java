@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class AppProcessThread extends Thread {
     private DaemonEnv env;
     private String[] strArr;
