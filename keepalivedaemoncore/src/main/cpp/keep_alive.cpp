@@ -292,6 +292,8 @@ void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
         LOGE("fork 1 error\n");
         exit(-1);
     } else if (pid == 0) { //第一个子进程
+        setsid();
+
         if ((pid = fork()) < 0) {
             LOGE("fork 2 error\n");
             exit(-1);
