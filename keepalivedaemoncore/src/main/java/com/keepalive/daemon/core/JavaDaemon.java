@@ -84,7 +84,6 @@ public class JavaDaemon {
                 for (int i = 0; i < strArr2.length; i++) {
                     strArr2[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-//                new AppProcessThread(context, strArr2, "daemon").start();
                 futureScheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
             }
         } else if (processName.equals(context.getPackageName())) {

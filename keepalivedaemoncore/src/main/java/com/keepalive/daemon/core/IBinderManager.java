@@ -11,21 +11,24 @@ public class IBinderManager {
             "START_INSTRUMENTATION_TRANSACTION");
 
     public int invoke(String str, String str2) {
+        int result = -1;
         try {
             Class<?> cls = Class.forName("android.app.IActivityManager$Stub");
             Field declaredField = cls.getDeclaredField(str);
             declaredField.setAccessible(true);
-            return declaredField.getInt(cls);
-        } catch (Exception unused) {
+            result = declaredField.getInt(cls);
+            declaredField.setAccessible(false);
+        } catch (Exception e) {
             try {
                 Class<?> cls2 = Class.forName("android.app.IActivityManager");
                 Field declaredField2 = cls2.getDeclaredField(str2);
                 declaredField2.setAccessible(true);
-                return declaredField2.getInt(cls2);
-            } catch (Exception unused2) {
-                return -1;
+                result = declaredField2.getInt(cls2);
+                declaredField2.setAccessible(false);
+            } catch (Exception e1) {
             }
         }
+        return result;
     }
 
     public int startService() {

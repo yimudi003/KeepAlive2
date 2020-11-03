@@ -142,6 +142,7 @@ public class KeepAliveProcessImpl implements IKeepAliveProcess {
             Field mRemoteField = amn.getClass().getDeclaredField("mRemote");
             mRemoteField.setAccessible(true);
             mRemote = (IBinder) mRemoteField.get(amn);
+            mRemoteField.setAccessible(false);
         } catch (Throwable e) {
             e.printStackTrace();
         }

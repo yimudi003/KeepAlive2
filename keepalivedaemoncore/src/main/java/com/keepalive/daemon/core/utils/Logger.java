@@ -3,6 +3,8 @@ package com.keepalive.daemon.core.utils;
 import android.annotation.SuppressLint;
 import android.os.Environment;
 
+import com.keepalive.daemon.core.BuildConfig;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
@@ -19,7 +21,7 @@ public class Logger {
     private static final int WARN = android.util.Log.WARN;
 
     public static final String TAG = "keepalive2-daemon";
-    public static final boolean DEBUGABLE = true;
+    public static final boolean DEBUGABLE = BuildConfig.DEBUG;
 
     private static boolean isLoggable(String tag, int level) {
         if (DEBUGABLE) {

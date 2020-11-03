@@ -12,7 +12,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        consumerProguardFiles "consumer-rules.pro"
+        consumerProguardFiles "proguard-rules.pro"
 
         externalNativeBuild {
             cmake {
@@ -27,7 +27,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -39,12 +39,6 @@ android {
     lintOptions {
         abortOnError false
     }
-//    sourceSets {
-//        main {
-//            jniLibs.srcDirs = ['src/main/jniLibs']
-//            aidl.srcDirs = ['src/main/aidl']
-//        }
-//    }
 }
 
 dependencies {

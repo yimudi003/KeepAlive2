@@ -17,8 +17,6 @@ public class DaemonService extends DaemonBaseService {
 
     @Override
     public void onCreate() {
-        super.onCreate();
-
         try {
             ContextCompat.startForegroundService(this,
                     new Intent().setClassName(getPackageName(), NotifyResidentService.class.getName()));
@@ -33,5 +31,6 @@ public class DaemonService extends DaemonBaseService {
         Intent intent3 = new Intent();
         intent3.setClassName(getPackageName(), AssistService2.class.getName());
         startService(intent3);
+        super.onCreate();
     }
 }
