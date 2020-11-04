@@ -12,6 +12,7 @@ import com.keepalive.daemon.core.utils.Logger;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public class DaemonMain {
     private IBinderManager binderManager = new IBinderManager();
@@ -29,6 +30,7 @@ public class DaemonMain {
     }
 
     public static void main(String[] strArr) {
+        Logger.d(Logger.TAG, "call main(): " + Arrays.toString(strArr));
         if (futureScheduler == null) {
             synchronized (DaemonMain.class) {
                 if (futureScheduler == null) {

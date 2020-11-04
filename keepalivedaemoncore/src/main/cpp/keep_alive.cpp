@@ -120,7 +120,7 @@ void notify_and_waitfor(const char *observer_self_path, const char *observer_dae
 }
 
 int lock_file(const char *lock_file_path) {
-    LOGD("start try to lock file >> %s <<", lock_file_path);
+    LOGD("try to lock file >> %s <<", lock_file_path);
     int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     LOGD("open [%s] : %d", lock_file_path, lockFileDescriptor);
     if (lockFileDescriptor == -1) {
@@ -130,10 +130,10 @@ int lock_file(const char *lock_file_path) {
     int lockRet = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
     LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, lockRet);
     if (lockRet == -1) {
-        LOGE("lock file failed >> %s <<", lock_file_path);
+        LOGE("failed to lock file >> %s <<", lock_file_path);
         return 0;
     } else {
-        LOGD("lock file success  >> %s <<", lock_file_path);
+        LOGD("success to lock file >> %s <<", lock_file_path);
         return 1;
     }
 }
@@ -151,7 +151,7 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
                uint32_t transact_code) {
     int lock_status = 0;
     int try_time = 0;
-    while (try_time < 5 && !(lock_status = lock_file(indicator_self_path))) {
+    while (try_time < 3 && !(lock_status = lock_file(indicator_self_path))) {
         try_time++;
         LOGD("Persistent lock myself failed and try again as %d times", try_time);
         usleep(10000);
@@ -228,7 +228,7 @@ bool wait_file_lock(const char *lock_file_path) {
     } else {
         LOGD("failed to lock file >> %s <<", lock_file_path);
     }
-    LOGD("retry lock file >> %s << %d", lock_file_path, err_no);
+    LOGD("retry to lock file >> %s << %d", lock_file_path, err_no);
     return ret;
 }
 
@@ -302,7 +302,7 @@ void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
             exit(0);
         }
 
-        LOGD("mypid: %d", getpid());
+        LOGD("*************************************************************** mypid: %d", getpid());
         const int MAX_PATH = 256;
         char indicator_self_path_child[MAX_PATH];
         char indicator_daemon_path_child[MAX_PATH];
