@@ -8,12 +8,14 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.keepalive.daemon.core.component.DaemonBaseService;
 import com.keepalive.daemon.core.utils.Logger;
 
-public class KeepAliveService extends Service {
+public class KeepAliveService extends DaemonBaseService {
+
     @Override
     public IBinder onBind(Intent intent) {
-        return new Binder();
+        return super.onBind(intent);
     }
 
     @Override
@@ -32,7 +34,7 @@ public class KeepAliveService extends Service {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             binder = iBinder;
-            Logger.i(Logger.TAG, "++++++++++++++++++++++++++++++++++++++++++++ " + iBinder);
+            Logger.d(Logger.TAG, "++++++++++++++++++++++++++++++++++++++++++++ " + iBinder);
             try {
                 iBinder.linkToDeath(mDeathRecipient, 0);
             } catch (RemoteException e) {

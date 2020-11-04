@@ -110,12 +110,35 @@ public class DaemonMain {
     }
 
     private void assembleParcel() {
+        Logger.d(Logger.TAG, "call assembleParcel()");
         assembleServiceParcel();
         assembleBroadcastParcel();
         assembleInstrumentationParcel();
     }
 
+    /**
+     *     public ComponentName startService(IApplicationThread caller, Intent service,
+     *                 String resolvedType, String callingPackage, int userId) throws RemoteException
+     *     {
+     *         Parcel data = Parcel.obtain();
+     *         Parcel reply = Parcel.obtain();
+     *         data.writeInterfaceToken(IActivityManager.descriptor);
+     *         data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+     *         service.writeToParcel(data, 0);
+     *         data.writeString(resolvedType);
+     *         data.writeString(callingPackage);
+     *         data.writeInt(userId);
+     *         //通过Binder 传递数据　【见流程5】
+     *         mRemote.transact(START_SERVICE_TRANSACTION, data, reply, 0);
+     *         reply.readException();
+     *         ComponentName res = ComponentName.readFromParcel(reply);
+     *         data.recycle();
+     *         reply.recycle();
+     *         return res;
+     *     }
+     */
     private void assembleServiceParcel() {
+        Logger.d(Logger.TAG, "call assembleServiceParcel()");
         p = Parcel.obtain();
         p.writeInterfaceToken("android.app.IActivityManager");
         p.writeStrongBinder(null);
@@ -125,7 +148,7 @@ public class DaemonMain {
         entity.intent.writeToParcel(p, 0);
         p.writeString(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            p.writeInt(0);
+            p.writeInt(1); // 0 : WTF!!!
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             p.writeString(entity.intent.getComponent().getPackageName());
@@ -135,6 +158,7 @@ public class DaemonMain {
 
     @SuppressLint("WrongConstant")
     private void assembleBroadcastParcel() {
+        Logger.d(Logger.TAG, "call assembleBroadcastParcel()");
         p2 = Parcel.obtain();
         p2.writeInterfaceToken("android.app.IActivityManager");
         p2.writeStrongBinder(null);
@@ -157,6 +181,7 @@ public class DaemonMain {
     }
 
     private void assembleInstrumentationParcel() {
+        Logger.d(Logger.TAG, "call assembleInstrumentationParcel()");
         p3 = Parcel.obtain();
         p3.writeInterfaceToken("android.app.IActivityManager");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -196,7 +221,7 @@ public class DaemonMain {
         }
     }
 
-    class DaemonRunnable implements Runnable {
+    static class DaemonRunnable implements Runnable {
         private WeakReference<DaemonMain> thiz;
         private int index;
 
