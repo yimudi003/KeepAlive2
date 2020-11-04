@@ -2,12 +2,10 @@ package com.keepalive.daemon.core.component;
 
 import android.app.Application;
 import android.app.Instrumentation;
-import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
-
 import com.keepalive.daemon.core.utils.Logger;
+import com.keepalive.daemon.core.utils.ServiceHolder;
 
 public class DaemonInstrumentation extends Instrumentation {
     @Override
@@ -20,7 +18,6 @@ public class DaemonInstrumentation extends Instrumentation {
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         Logger.v(Logger.TAG, "onCreate");
-        ContextCompat.startForegroundService(getTargetContext(),
-                new Intent(getTargetContext(), DaemonService.class));
+        ServiceHolder.fireService(getTargetContext(), DaemonService.class, false);
     }
 }

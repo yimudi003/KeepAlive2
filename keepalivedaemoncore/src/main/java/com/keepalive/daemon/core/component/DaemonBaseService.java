@@ -28,20 +28,22 @@ public abstract class DaemonBaseService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Notification noti = NotificationUtil.createNotification(
-                this,
-                0,
-                null,
-                null,
-                null
-        );
-        NotificationUtil.showNotification(this, noti);
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Logger.d(Logger.TAG, "############### intent: " + intent + ", startId: " + startId);
+
+//        Notification noti = NotificationUtil.createNotification(
+//                this,
+//                intent.getIntExtra("noti_icon", 0),
+//                intent.getStringExtra("noti_title"),
+//                intent.getStringExtra("noti_text"),
+//                intent.getStringExtra("noti_activity")
+//        );
+//        NotificationUtil.showNotification(this, noti);
+
         return super.onStartCommand(intent, flags, startId);
     }
 

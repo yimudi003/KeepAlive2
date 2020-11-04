@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import androidx.core.content.ContextCompat;
+
 import com.keepalive.daemon.core.IMonitorService;
 
 import java.util.HashMap;
@@ -88,6 +90,20 @@ public class ServiceHolder {
             } catch (Throwable th) {
                 th.printStackTrace();
             }
+        }
+    }
+
+    public static void fireService(Context context, Class<? extends Service> clazz,
+                                   boolean isForeground) {
+        Intent intent = new Intent(context, clazz);
+        try {
+            if (isForeground) {
+                ContextCompat.startForegroundService(context, new Intent(context, clazz));
+            } else {
+                context.startService(intent);
+            }
+        } catch (Throwable th) {
+            th.printStackTrace();
         }
     }
 
