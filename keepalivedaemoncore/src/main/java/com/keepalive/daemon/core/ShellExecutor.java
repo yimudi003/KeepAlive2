@@ -12,8 +12,8 @@ import java.util.Map;
 public class ShellExecutor {
     private static final String COLON_SEPARATOR = ":";
 
-    public static void execute(File dir, Map map, String[] cmds) {
-        if (cmds.length == 0) {
+    public static void execute(File dir, Map map, String[] args) {
+        if (args.length == 0) {
             return;
         }
 
@@ -38,13 +38,13 @@ public class ShellExecutor {
                 }
             }
             builder.directory(dir);
-            Map<String, String> environment = builder.environment();
-            environment.putAll(System.getenv());
+            Map<String, String> env = builder.environment();
+            env.putAll(System.getenv());
             if (map != null) {
-                environment.putAll(map);
+                env.putAll(map);
             }
             StringBuilder sb = new StringBuilder();
-            for (String append : cmds) {
+            for (String append : args) {
                 sb.append(append);
                 sb.append("\n");
             }
@@ -54,7 +54,7 @@ public class ShellExecutor {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(),
                         "utf-8"));
-                for (String cmd : cmds) {
+                for (String cmd : args) {
                     if (cmd.endsWith("\n")) {
                         os.write(cmd.getBytes());
                     } else {

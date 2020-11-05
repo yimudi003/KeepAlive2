@@ -47,21 +47,21 @@ public class JavaDaemon {
         env.intent3 = intent3;
         env.processName = Utils.getProcessName();
 
-        String[] strArr = {"daemon", "assist1", "assist2"};
-        fire(context, env, strArr);
+        String[] args = {"daemon", "assist1", "assist2"};
+        fire(context, env, args);
     }
 
-    private void fire(Context context, DaemonEnv env, String[] strArr) {
+    private void fire(Context context, DaemonEnv env, String[] args) {
         Logger.i(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fire(): "
-                + "env=" + env + ", strArr=" + Arrays.toString(strArr));
+                + "env=" + env + ", args=" + Arrays.toString(args));
         boolean z;
         String processName = env.processName;
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
             String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
-            if (strArr != null) {
+            if (args != null) {
                 z = false;
-                for (String str : strArr) {
+                for (String str : args) {
                     if (str.equals(substring)) {
                         z = true;
                     } else {
@@ -75,11 +75,11 @@ public class JavaDaemon {
                 Logger.v(Logger.TAG, "app lock file start: " + substring);
                 NativeKeepAlive.lockFile(context.getFilesDir() + "/" + substring + "_d");
                 Logger.v(Logger.TAG, "app lock file finish");
-                String[] strArr2 = new String[list.size()];
-                for (int i = 0; i < strArr2.length; i++) {
-                    strArr2[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
+                String[] strArr = new String[list.size()];
+                for (int i = 0; i < strArr.length; i++) {
+                    strArr[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
+                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr, "daemon"), 0);
             }
         } else if (processName.equals(context.getPackageName())) {
             ServiceHolder.fireService(context, DaemonService.class, false);

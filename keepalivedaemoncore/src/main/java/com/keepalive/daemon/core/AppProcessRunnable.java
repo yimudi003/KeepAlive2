@@ -3,7 +3,7 @@ package com.keepalive.daemon.core;
 import com.keepalive.daemon.core.utils.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public class AppProcessRunnable implements Runnable {
         entity.intent2 = env.intent2;
         entity.intent3 = env.intent3;
 
-        List<String> list = new ArrayList();
+        List<String> list = new LinkedList<>();
         list.add("export CLASSPATH=$CLASSPATH:" + env.publicSourceDir);
         if (env.nativeLibraryDir.contains("arm64")) {
             list.add("export _LD_LIBRARY_PATH=/system/lib64/:/vendor/lib64/:" + env.nativeLibraryDir);
@@ -56,12 +56,12 @@ public class AppProcessRunnable implements Runnable {
                             "app_process32" : "app_process", DaemonMain.class.getCanonicalName(),
                             entity.toString(), niceName}));
         }
-        Logger.i(Logger.TAG, "cmds: " + list);
+        Logger.i(Logger.TAG, "shell commands: " + list);
         File file = new File("/");
-        String[] args = new String[list.size()];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = list.get(i);
+        String[] strArr = new String[list.size()];
+        for (int i = 0; i < strArr.length; i++) {
+            strArr[i] = list.get(i);
         }
-        ShellExecutor.execute(file, null, args);
+        ShellExecutor.execute(file, null, strArr);
     }
 }
