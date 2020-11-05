@@ -19,7 +19,7 @@ extern "C" {
 void set_process_name(JNIEnv *env) {
     jclass process = env->FindClass("android/os/Process");
     jmethodID setArgV0 = env->GetStaticMethodID(process, "setArgV0", "(Ljava/lang/String;)V");
-    jstring name = env->NewStringUTF("daemon");
+    jstring name = env->NewStringUTF("app_d");
     env->CallStaticVoidMethod(process, setArgV0, name);
 }
 
@@ -198,7 +198,7 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
     if (lock_status) {
         LOGE("Watch >>>>DAEMON<<<<< Dead !!");
         status_t status = write_transact(handle, transact_code, *data, NULL, 1, mDriverFD);
-        LOGD("writeService result is %d", status);
+        LOGD("write_transact status is %d", status);
 //        int result = binder.get()->transact(code, parcel, NULL, 1);
         remove(observer_self_path);// it`s important ! to prevent from deadlock
 //        java_callback(env, thiz, DAEMON_CALLBACK_NAME);

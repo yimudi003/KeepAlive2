@@ -1,0 +1,12 @@
+adb shell:
+logcat | egrep " Zygote | AndroidRuntime: | DEBUG|keepalive2-daemon|binder| ActivityManager:"
+
+ps -A | egrep "init|zygote|u0_axxx"
+
+while true^Jdo^Jps -A | egrep "init|zygote|u0_axxx|app_process"^Jecho ""^Jsleep 1^Jdone
+
+adb 远程调式步骤：
+1.adb usb
+2.adb tcpip [port] //如：5555
+3.adb connect [ip]:[port] //如：adb connect 192.168.1.2:5555
+4.adb disconnect [ip] //断开连接

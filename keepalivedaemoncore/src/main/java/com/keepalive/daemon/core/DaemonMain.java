@@ -29,8 +29,8 @@ public class DaemonMain {
         this.entity = entity;
     }
 
-    public static void main(String[] strArr) {
-        Logger.d(Logger.TAG, "call main(): " + Arrays.toString(strArr));
+    public static void main(String[] args) {
+        Logger.d(Logger.TAG, "call main(): " + Arrays.toString(args));
         if (futureScheduler == null) {
             synchronized (DaemonMain.class) {
                 if (futureScheduler == null) {
@@ -42,7 +42,7 @@ public class DaemonMain {
             }
         }
 
-        DaemonEntity entity = DaemonEntity.create(strArr[0]);
+        DaemonEntity entity = DaemonEntity.create(args[0]);
         if (entity != null) {
             new DaemonMain(entity).execute();
         }
@@ -55,22 +55,22 @@ public class DaemonMain {
             assembleParcel();
             NativeKeepAlive.nativeSetSid();
             try {
-                Logger.v(Logger.TAG, "setArgV0: " + entity.str);
+                Logger.v(Logger.TAG, ">>>> invoke setArgV0(): niceName=" + entity.niceName);
                 Process.class.getMethod("setArgV0", new Class[]{String.class}).invoke(null,
-                        new Object[]{entity.str});
+                        new Object[]{entity.niceName});
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            for (int i = 1; i < entity.strArr.length; i++) {
+            for (int i = 1; i < entity.args.length; i++) {
                 futureScheduler.scheduleFuture(new DaemonRunnable(this, i), 0);
             }
-            Logger.v(Logger.TAG, "[" + entity.str + "] wait file lock start: " + entity.strArr[0]);
-            NativeKeepAlive.waitFileLock(entity.strArr[0]);
-            Logger.v(Logger.TAG, "[" + entity.str + "] wait file lock finish");
+            Logger.v(Logger.TAG, "[" + entity.niceName + "] wait file lock start: " + entity.args[0]);
+            NativeKeepAlive.waitFileLock(entity.args[0]);
+            Logger.v(Logger.TAG, "[" + entity.niceName + "] wait file lock finish");
             startService();
             broadcastIntent();
             startInstrumentation();
-            Logger.v(Logger.TAG, "[" + entity.str + "] start android finish");
+            Logger.v(Logger.TAG, "[" + entity.niceName + "] start android finish");
         } catch (Throwable th) {
             binderManager.thrown(th);
         }
@@ -117,25 +117,25 @@ public class DaemonMain {
     }
 
     /**
-     *     public ComponentName startService(IApplicationThread caller, Intent service,
-     *                 String resolvedType, String callingPackage, int userId) throws RemoteException
-     *     {
-     *         Parcel data = Parcel.obtain();
-     *         Parcel reply = Parcel.obtain();
-     *         data.writeInterfaceToken(IActivityManager.descriptor);
-     *         data.writeStrongBinder(caller != null ? caller.asBinder() : null);
-     *         service.writeToParcel(data, 0);
-     *         data.writeString(resolvedType);
-     *         data.writeString(callingPackage);
-     *         data.writeInt(userId);
-     *         //通过Binder 传递数据　【见流程5】
-     *         mRemote.transact(START_SERVICE_TRANSACTION, data, reply, 0);
-     *         reply.readException();
-     *         ComponentName res = ComponentName.readFromParcel(reply);
-     *         data.recycle();
-     *         reply.recycle();
-     *         return res;
-     *     }
+     * public ComponentName startService(IApplicationThread caller, Intent service,
+     * String resolvedType, String callingPackage, int userId) throws RemoteException
+     * {
+     * Parcel data = Parcel.obtain();
+     * Parcel reply = Parcel.obtain();
+     * data.writeInterfaceToken(IActivityManager.descriptor);
+     * data.writeStrongBinder(caller != null ? caller.asBinder() : null);
+     * service.writeToParcel(data, 0);
+     * data.writeString(resolvedType);
+     * data.writeString(callingPackage);
+     * data.writeInt(userId);
+     * //通过Binder 传递数据　【见流程5】
+     * mRemote.transact(START_SERVICE_TRANSACTION, data, reply, 0);
+     * reply.readException();
+     * ComponentName res = ComponentName.readFromParcel(reply);
+     * data.recycle();
+     * reply.recycle();
+     * return res;
+     * }
      */
     private void assembleServiceParcel() {
         Logger.d(Logger.TAG, "call assembleServiceParcel()");
@@ -233,7 +233,7 @@ public class DaemonMain {
         @Override
         public void run() {
             Logger.v(Logger.TAG, "[Thread] wait file lock start: " + index);
-            NativeKeepAlive.waitFileLock(thiz.get().entity.strArr[index]);
+            NativeKeepAlive.waitFileLock(thiz.get().entity.args[index]);
             Logger.v(Logger.TAG, "[Thread] wait file lock finished");
             thiz.get().startService();
             thiz.get().broadcastIntent();

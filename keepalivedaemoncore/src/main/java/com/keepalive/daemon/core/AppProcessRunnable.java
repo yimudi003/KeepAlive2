@@ -6,22 +6,35 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * app_process [vm-options] cmd-dir [options] start-class-name [main-options]
+ * <p>
+ * vm-options – VM 选项
+ * cmd-dir –父目录 (/system/bin)
+ * options –运行的参数 :
+ * –zygote
+ * –start-system-server
+ * –application (api>=14)
+ * –nice-name=nice_proc_name (api>=14)
+ * start-class-name –包含main方法的主类  (com.android.commands.am.Am)
+ * main-options –启动时候传递到main方法中的参数
+ */
 public class AppProcessRunnable implements Runnable {
     private DaemonEnv env;
-    private String[] strArr;
-    private String str;
+    private String[] args;
+    private String niceName;
 
-    public AppProcessRunnable(DaemonEnv env, String[] strArr, String str) {
+    public AppProcessRunnable(DaemonEnv env, String[] args, String niceName) {
         this.env = env;
-        this.strArr = strArr;
-        this.str = str;
+        this.args = args;
+        this.niceName = niceName;
     }
 
     @Override
     public void run() {
         DaemonEntity entity = new DaemonEntity();
-        entity.str = str;
-        entity.strArr = strArr;
+        entity.niceName = niceName;
+        entity.args = args;
         entity.intent = env.intent;
         entity.intent2 = env.intent2;
         entity.intent3 = env.intent3;
@@ -34,21 +47,21 @@ public class AppProcessRunnable implements Runnable {
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
                     new Object[]{new File("/system/bin/app_process64").exists() ?
                             "app_process64" : "app_process", DaemonMain.class.getCanonicalName(),
-                            entity.toString(), str}));
+                            entity.toString(), niceName}));
         } else {
             list.add("export _LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add("export LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
                     new Object[]{new File("/system/bin/app_process32").exists() ?
                             "app_process32" : "app_process", DaemonMain.class.getCanonicalName(),
-                            entity.toString(), str}));
+                            entity.toString(), niceName}));
         }
         Logger.i(Logger.TAG, "cmds: " + list);
         File file = new File("/");
-        String[] strArr = new String[list.size()];
-        for (int i = 0; i < strArr.length; i++) {
-            strArr[i] = list.get(i);
+        String[] args = new String[list.size()];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = list.get(i);
         }
-        ShellExecutor.execute(file, null, strArr);
+        ShellExecutor.execute(file, null, args);
     }
 }
