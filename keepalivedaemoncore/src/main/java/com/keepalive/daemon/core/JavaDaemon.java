@@ -17,23 +17,20 @@ import java.util.List;
 
 public class JavaDaemon {
     private static final String COLON_SEPARATOR = ":";
-    private static volatile FutureScheduler futureScheduler;
+    private volatile static FutureScheduler scheduler;
 
     private JavaDaemon() {
-        if (futureScheduler == null) {
+        if (scheduler == null) {
             synchronized (JavaDaemon.class) {
-                if (futureScheduler == null) {
-                    futureScheduler = new SingleThreadFutureScheduler(
-                            "javadaemon-holder",
-                            true
-                    );
+                if (scheduler == null) {
+                    scheduler = new SingleThreadFutureScheduler("javadaemon-holder", true);
                 }
             }
         }
     }
 
     private static class Holder {
-        private static volatile JavaDaemon INSTANCE = new JavaDaemon();
+        private volatile static JavaDaemon INSTANCE = new JavaDaemon();
     }
 
     public static JavaDaemon getInstance() {
@@ -55,11 +52,11 @@ public class JavaDaemon {
     }
 
     private void fire(Context context, DaemonEnv env, String[] strArr) {
-        Logger.i(Logger.TAG, "############################################## !!! fire(): " +
-                "env=" + env + ", strArr=" + Arrays.toString(strArr));
+        Logger.i(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fire(): "
+                + "env=" + env + ", strArr=" + Arrays.toString(strArr));
         boolean z;
         String processName = Utils.getProcessName();
-        Logger.v(Logger.TAG, "processName: " + processName);
+        Logger.v(Logger.TAG, ">>>------------------------->>> processName: " + processName);
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
             String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
@@ -83,7 +80,7 @@ public class JavaDaemon {
                 for (int i = 0; i < strArr2.length; i++) {
                     strArr2[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-                futureScheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
+                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
             }
         } else if (processName.equals(context.getPackageName())) {
             ServiceHolder.fireService(context, DaemonService.class, false);

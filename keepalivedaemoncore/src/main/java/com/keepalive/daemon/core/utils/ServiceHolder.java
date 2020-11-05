@@ -22,7 +22,7 @@ public class ServiceHolder {
     }
 
     private static class Holder {
-        private static volatile ServiceHolder INSTANCE = new ServiceHolder();
+        private volatile static ServiceHolder INSTANCE = new ServiceHolder();
     }
 
     public static ServiceHolder getInstance() {

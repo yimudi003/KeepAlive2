@@ -33,7 +33,7 @@ public class DaemonHolder {
     }
 
     private static class Holder {
-        private static volatile DaemonHolder INSTANCE = new DaemonHolder();
+        private volatile static DaemonHolder INSTANCE = new DaemonHolder();
     }
 
     public static DaemonHolder getInstance() {
