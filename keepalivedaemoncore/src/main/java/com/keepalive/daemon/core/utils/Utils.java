@@ -14,7 +14,9 @@ public class Utils {
         try {
             File file = new File("/proc/self/cmdline");
             mBufferedReader = new BufferedReader(new FileReader(file));
-            return mBufferedReader.readLine().trim();
+            String value = mBufferedReader.readLine().trim();
+            Logger.v(Logger.TAG, ">>>------------------------->>> processName: " + value);
+            return value;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.TextUtils;
 
 import com.keepalive.daemon.core.utils.Logger;
 
@@ -44,9 +45,8 @@ public class KeepAlive {
 
         String processName = getProcessName();
         Logger.v(Logger.TAG, ">>>------------------------->>> processName: " + processName);
-
-        if (processName == null) {
-            Logger.e(Logger.TAG, "process name is empty");
+        if (TextUtils.isEmpty(processName)) {
+            Logger.w(Logger.TAG, "process name is empty");
         } else if (processName.startsWith(mConfigurations.PERSISTENT_CONFIG.processName)) {
             if (mConfigurations.limitReboot) {
                 checkServiceProcessContinuousBootOverTimes(base, mConfigurations);

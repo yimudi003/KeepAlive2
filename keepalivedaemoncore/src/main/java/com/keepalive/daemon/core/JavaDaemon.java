@@ -55,8 +55,7 @@ public class JavaDaemon {
         Logger.i(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fire(): "
                 + "env=" + env + ", strArr=" + Arrays.toString(strArr));
         boolean z;
-        String processName = Utils.getProcessName();
-        Logger.v(Logger.TAG, ">>>------------------------->>> processName: " + processName);
+        String processName = env.processName;
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
             String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
