@@ -26,8 +26,8 @@ public abstract class DaemonBaseService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Logger.d(Logger.TAG, "############### call onCreate()");
     }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -38,6 +38,7 @@ public abstract class DaemonBaseService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Logger.d(Logger.TAG, "############### call onBind(): " + intent);
         return binder;
     }
 }

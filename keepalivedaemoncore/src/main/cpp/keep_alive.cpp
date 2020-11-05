@@ -54,6 +54,7 @@ void writeIntent(Parcel &out, const char *mPackage, const char *mClass) {
 }
 
 void writeService(Parcel &out, const char *mPackage, const char *mClass, int sdk_version) {
+    LOGD("================> %s/%s, sdkVersion: %d", mPackage, mClass, sdk_version);
     if (sdk_version >= 26) {
         out.writeInterfaceToken(String16("android.app.IActivityManager"));
         out.writeNullBinder();
@@ -61,7 +62,7 @@ void writeService(Parcel &out, const char *mPackage, const char *mClass, int sdk
         writeIntent(out, mPackage, mClass);
         out.writeString16(NULL, 0); // resolvedType
         // mServiceData.writeInt(context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O ? 1 : 0);
-        out.writeInt32(0);
+        out.writeInt32(1); // 0 WTF!!!
         out.writeString16(String16(mPackage)); // callingPackage
         out.writeInt32(0);
     } else if (sdk_version >= 23) {
@@ -188,7 +189,6 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
 
     uint32_t handle = get_service("activity", mDriverFD);
     Parcel *data = new Parcel;
-    LOGD("writeService %s %s", pkgName, serviceName);
 //    writeService(*data, pkgName, serviceName, sdk_version);
 // com.boolbird.keepalive com.boolbird.keepalive.demo.Service1
     writeService(*data, pkgName, serviceName, sdk_version);

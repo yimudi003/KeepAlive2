@@ -43,9 +43,7 @@ public class KeepAlive {
         }
 
         String processName = getProcessName();
-        Logger.v(Logger.TAG, "============>>> processName: " + processName);
-        String packageName = base.getPackageName();
-        Logger.v(Logger.TAG, "============>>> packageName: " + packageName);
+        Logger.v(Logger.TAG, ">>>------------------------->>> processName: " + processName);
 
         if (processName == null) {
             Logger.e(Logger.TAG, "process name is empty");
@@ -63,7 +61,7 @@ public class KeepAlive {
             if (isDaemonPermitting(base)) {
                 IKeepAliveProcess.Fetcher.fetchStrategy().onDaemonAssistantCreate(base, mConfigurations);
             }
-        } else if (processName.startsWith(packageName)) {
+        } else if (processName.startsWith(base.getPackageName())) {
             // checkMainProcessContinuousBootOverTimes(base, mConfigurations);
             if (isDaemonPermitting(base)) {
                 IKeepAliveProcess.Fetcher.fetchStrategy().onInit(base, mConfigurations);

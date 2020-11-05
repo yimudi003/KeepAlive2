@@ -23,6 +23,7 @@ public class NotifyResidentService extends KeepAliveService {
     @Override
     public void onCreate() {
         super.onCreate();
+        ServiceHolder.fireService(this, DaemonService.class, false);
     }
 
     @Override
