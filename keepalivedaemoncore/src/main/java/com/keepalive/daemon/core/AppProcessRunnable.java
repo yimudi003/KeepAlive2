@@ -32,15 +32,15 @@ public class AppProcessRunnable implements Runnable {
             list.add("export _LD_LIBRARY_PATH=/system/lib64/:/vendor/lib64/:" + env.nativeLibraryDir);
             list.add("export LD_LIBRARY_PATH=/system/lib64/:/vendor/lib64/:" + env.nativeLibraryDir);
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
-                    new Object[]{new File("/system/bin/app_process").exists() ?
-                            "app_process" : "app_process", DaemonMain.class.getName(),
+                    new Object[]{new File("/system/bin/app_process64").exists() ?
+                            "app_process64" : "app_process64", DaemonMain.class.getName(),
                             entity.toString(), str}));
         } else {
             list.add("export _LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add("export LD_LIBRARY_PATH=/system/lib/:/vendor/lib/:" + env.nativeLibraryDir);
             list.add(String.format("%s / %s %s --application --nice-name=%s &",
                     new Object[]{new File("/system/bin/app_process32").exists() ?
-                            "app_process32" : "app_process", DaemonMain.class.getName(),
+                            "app_process32" : "app_process32", DaemonMain.class.getName(),
                             entity.toString(), str}));
         }
         Logger.i(Logger.TAG, "cmds: " + list);
