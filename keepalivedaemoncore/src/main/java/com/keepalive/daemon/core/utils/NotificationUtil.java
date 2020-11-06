@@ -22,7 +22,7 @@ public class NotificationUtil {
     /**
      * 唯一前台通知ID
      */
-    public static final int NOTIFICATION_ID = 0x1000;
+    public static final int NOTIFICATION_ID = 0x9999;
 
     public static Notification createNotification(Context context,
                                                   int icon,

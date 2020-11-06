@@ -6,6 +6,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+import com.keepalive.daemon.core.Constants;
 import com.keepalive.daemon.core.KeepAliveService;
 import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.utils.Logger;
@@ -14,33 +15,48 @@ import com.keepalive.daemon.core.utils.ServiceHolder;
 
 public class NotifyResidentService extends KeepAliveService {
 
-    @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public void onCreate() {
+    public final void onCreate() {
         super.onCreate();
         ServiceHolder.fireService(this, DaemonService.class, false);
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public final int onStartCommand(Intent intent, int flags, int startId) {
         Logger.d(Logger.TAG, "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ " +
                 "intent: " + intent + ", startId: " + startId);
 
+        doStartCommand(intent, flags, startId);
+
         Notification noti = NotificationUtil.createNotification(
                 this,
-                intent.getIntExtra("noti_icon", 0),
-                intent.getStringExtra("noti_title"),
-                intent.getStringExtra("noti_text"),
-                intent.getStringExtra("noti_activity")
+                intent.getIntExtra(Constants.NOTIFICATION_ICON, 0),
+                intent.getStringExtra(Constants.NOTIFICATION_TITLE),
+                intent.getStringExtra(Constants.NOTIFICATION_TEXT),
+                intent.getStringExtra(Constants.NOTIFICATION_ACTIVITY)
         );
         NotificationUtil.showNotification(this, noti);
 
         ServiceHolder.getInstance().bindService(this, DaemonService.class, null);
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Nullable
+    @Override
+    public final IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public final boolean onUnbind(Intent intent) {
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public final void onDestroy() {
+        super.onDestroy();
+    }
+
+    protected void doStartCommand(Intent intent, int flags, int startId) {
     }
 }
