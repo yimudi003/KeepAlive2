@@ -15,8 +15,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.keepalive.daemon.core.Constants.COLON_SEPARATOR;
+
 public class JavaDaemon {
-    private static final String COLON_SEPARATOR = ":";
     private volatile static FutureScheduler scheduler;
 
     private JavaDaemon() {
@@ -54,32 +55,27 @@ public class JavaDaemon {
     private void fire(Context context, DaemonEnv env, String[] args) {
         Logger.i(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fire(): "
                 + "env=" + env + ", args=" + Arrays.toString(args));
-        boolean z;
+        boolean hit = false;
         String processName = env.processName;
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
-            String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
+            String niceName = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
-            if (args != null) {
-                z = false;
-                for (String str : args) {
-                    if (str.equals(substring)) {
-                        z = true;
-                    } else {
-                        list.add(str);
-                    }
+            for (String arg : args) {
+                if (arg.equals(niceName)) {
+                    hit = true;
+                } else {
+                    list.add(arg);
                 }
-            } else {
-                z = false;
             }
-            if (z) {
-                Logger.v(Logger.TAG, "app lock file start: " + substring);
-                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + substring + "_d");
+            if (hit) {
+                Logger.v(Logger.TAG, "app lock file start: " + niceName);
+                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + niceName + "_d");
                 Logger.v(Logger.TAG, "app lock file finish");
                 String[] strArr = new String[list.size()];
                 for (int i = 0; i < strArr.length; i++) {
                     strArr[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr, "daemon"), 0);
+                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr, niceName), 0);
             }
         } else if (processName.equals(context.getPackageName())) {
             ServiceHolder.fireService(context, DaemonService.class, false);

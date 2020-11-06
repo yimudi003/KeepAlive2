@@ -9,8 +9,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
 
+import static com.keepalive.daemon.core.Constants.COLON_SEPARATOR;
+
 public class ShellExecutor {
-    private static final String COLON_SEPARATOR = ":";
 
     public static void execute(File dir, Map<String, String> map, String[] args) {
         try {
