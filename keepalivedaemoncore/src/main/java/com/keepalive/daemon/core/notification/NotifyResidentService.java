@@ -2,9 +2,6 @@ package com.keepalive.daemon.core.notification;
 
 import android.app.Notification;
 import android.content.Intent;
-import android.os.IBinder;
-
-import androidx.annotation.Nullable;
 
 import com.keepalive.daemon.core.Constants;
 import com.keepalive.daemon.core.KeepAliveService;
@@ -19,6 +16,7 @@ public class NotifyResidentService extends KeepAliveService {
     public final void onCreate() {
         super.onCreate();
         ServiceHolder.fireService(this, DaemonService.class, false);
+        doStart();
     }
 
     @Override
@@ -41,22 +39,18 @@ public class NotifyResidentService extends KeepAliveService {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Nullable
-    @Override
-    public final IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    @Override
-    public final boolean onUnbind(Intent intent) {
-        return super.onUnbind(intent);
-    }
-
     @Override
     public final void onDestroy() {
+        doRelease();
         super.onDestroy();
     }
 
+    protected void doStart() {
+    }
+
     protected void doStartCommand(Intent intent, int flags, int startId) {
+    }
+
+    protected void doRelease() {
     }
 }
