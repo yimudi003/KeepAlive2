@@ -12,11 +12,7 @@ import java.util.Map;
 public class ShellExecutor {
     private static final String COLON_SEPARATOR = ":";
 
-    public static void execute(File dir, Map map, String[] args) {
-        if (args.length == 0) {
-            return;
-        }
-
+    public static void execute(File dir, Map<String, String> map, String[] args) {
         try {
             ProcessBuilder builder = new ProcessBuilder(new String[0]);
             String envPath = System.getenv("PATH");
@@ -30,7 +26,7 @@ public class ShellExecutor {
                         break;
                     }
                     File f = new File(split[i], "sh");
-                    if (f.exists()) {
+                    if (f != null && f.exists()) {
                         builder.command(new String[]{f.getPath()}).redirectErrorStream(true);
                         break;
                     }

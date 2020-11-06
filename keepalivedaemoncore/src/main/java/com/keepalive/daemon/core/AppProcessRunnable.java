@@ -56,7 +56,7 @@ public class AppProcessRunnable implements Runnable {
                             "app_process32" : "app_process", DaemonMain.class.getCanonicalName(),
                             entity.toString(), niceName}));
         }
-        Logger.i(Logger.TAG, "shell commands: " + list);
+        Logger.d(Logger.TAG, "shell commands: " + list);
         File file = new File("/");
         String[] strArr = new String[list.size()];
         for (int i = 0; i < strArr.length; i++) {
