@@ -213,11 +213,30 @@ bool wait_file_lock(const char *lock_file_path) {
     int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     if (lockFileDescriptor == -1)
         lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
-//    int try_time = 0;
-    while (/*try_time < 5 && */flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) {
-//        ++try_time;
-//        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
-        usleep(1000);
+    int try_time = 0;
+//    while (/*try_time < 5 && */flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) { // 会死循环！！！
+////        ++try_time;
+////        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
+//        usleep(1000);
+//    }
+
+    int loop_result = -1;
+    for (;;) {
+        loop_result = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
+        LOGD("lock_file_path : %s , loop_result : %d", lock_file_path, loop_result);
+        if (loop_result != -1) {
+            if (loop_result == 0) {
+                int unlock_result = flock(lockFileDescriptor, LOCK_UN);
+                LOGD("lock_file_path : %s , unlock_result : %d", lock_file_path, unlock_result);
+                sleep(1);
+            } else {
+                usleep(1000);
+            }
+        } else {
+            break;
+        }
+        ++try_time;
+        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
     }
 
     int err_no = flock(lockFileDescriptor, LOCK_EX);
