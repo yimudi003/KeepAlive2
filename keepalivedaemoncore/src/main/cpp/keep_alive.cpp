@@ -220,14 +220,14 @@ bool wait_file_lock(const char *lock_file_path) {
 //        usleep(1000);
 //    }
 
-    int loop_result = -1;
+    int err_no = -1;
     for (;;) {
-        loop_result = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
-        LOGD("lock_file_path : %s , loop_result : %d", lock_file_path, loop_result);
-        if (loop_result != -1) {
-            if (loop_result == 0) {
+        err_no = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
+        LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
+        if (err_no != -1) {
+            if (err_no == 0) {
                 int unlock_result = flock(lockFileDescriptor, LOCK_UN);
-                LOGD("lock_file_path : %s , unlock_result : %d", lock_file_path, unlock_result);
+                LOGD("lock_file_path: %s , unlock_result: %d", lock_file_path, unlock_result);
                 sleep(1);
             } else {
                 usleep(1000);
@@ -239,13 +239,13 @@ bool wait_file_lock(const char *lock_file_path) {
         LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
     }
 
-    int err_no = flock(lockFileDescriptor, LOCK_EX);
+    err_no = flock(lockFileDescriptor, LOCK_EX);
     LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
-    bool ret = err_no != -1;
+    bool ret = err_no == -1;
     if (ret) {
-        LOGD("success to lock file >> %s <<", lock_file_path);
-    } else {
         LOGD("failed to lock file >> %s <<", lock_file_path);
+    } else {
+        LOGD("success to lock file >> %s <<", lock_file_path);
     }
     LOGD("retry to lock file >> %s << %d", lock_file_path, err_no);
     return ret;
