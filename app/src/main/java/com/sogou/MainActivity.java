@@ -25,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     Intent intent = new Intent(MainActivity.this, MyService.class);
-                    intent.putExtra(Constants.NOTIFICATION_TITLE, "You are Superman");
-                    intent.putExtra(Constants.NOTIFICATION_TEXT, "HaHaHa...");
+                    intent.putExtra(Constants.NOTI_TITLE, "You are Superman");
+                    intent.putExtra(Constants.NOTI_TEXT, "HaHaHa...");
                     ContextCompat.startForegroundService(MainActivity.this, intent);
                 } catch (Throwable th) {
                     Logger.e(Logger.TAG, "failed to start foreground service: " + th.getMessage());

@@ -10,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.2"
 
         consumerProguardFiles "proguard-rules.pro"
 
@@ -43,11 +43,10 @@ android {
         variant.outputs.all { output ->
             def name = project.name
             def versionName = defaultConfig.versionName
-            def versionCode = defaultConfig.versionCode
             if (variant.buildType.name == "release") {
-                outputFileName = "${name}_v${versionName}.${versionCode}r.aar"
+                outputFileName = "${name}_v${versionName}r.aar"
             } else if (variant.buildType.name == "debug") {
-                outputFileName = "${name}_v${versionName}.${versionCode}d.aar"
+                outputFileName = "${name}_v${versionName}d.aar"
             }
             println "======> outputFileName=" + outputFileName
         }

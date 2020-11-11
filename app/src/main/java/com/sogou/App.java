@@ -1,6 +1,7 @@
 package com.sogou;
 
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
@@ -22,12 +23,19 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         try {
             Intent intent = new Intent(this, MyService.class);
-            intent.putExtra(Constants.NOTIFICATION_ICON, R.mipmap.ic_launcher_round);
-            intent.putExtra(Constants.NOTIFICATION_TITLE, getApplicationInfo().loadLabel(getPackageManager()));
-            intent.putExtra(Constants.NOTIFICATION_TEXT, "Hello, world!");
-            intent.putExtra(Constants.NOTIFICATION_ACTIVITY, MainActivity.class.getCanonicalName());
+            intent.putExtra(Constants.NOTI_SMALL_ICON_ID, R.drawable.notify_panel_notification_icon_bg);
+            intent.putExtra(Constants.NOTI_TITLE, getApplicationInfo().loadLabel(getPackageManager()));
+            intent.putExtra(Constants.NOTI_TEXT, "Hello, world!");
+
+            Intent i = new Intent(this, MainActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, i,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            intent.putExtra(Constants.NOTI_PENDING_INTENT, pi);
+
             ContextCompat.startForegroundService(this, intent);
         } catch (Throwable th) {
             Logger.e(Logger.TAG, "failed to start foreground service: " + th.getMessage());

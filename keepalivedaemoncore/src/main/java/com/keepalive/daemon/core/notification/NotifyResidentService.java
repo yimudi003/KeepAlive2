@@ -1,7 +1,10 @@
 package com.keepalive.daemon.core.notification;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
+
+import androidx.core.app.NotificationCompat;
 
 import com.keepalive.daemon.core.Constants;
 import com.keepalive.daemon.core.KeepAliveService;
@@ -28,10 +31,15 @@ public class NotifyResidentService extends KeepAliveService {
 
         Notification noti = NotificationUtil.createNotification(
                 this,
-                intent.getIntExtra(Constants.NOTIFICATION_ICON, 0),
-                intent.getStringExtra(Constants.NOTIFICATION_TITLE),
-                intent.getStringExtra(Constants.NOTIFICATION_TEXT),
-                intent.getStringExtra(Constants.NOTIFICATION_ACTIVITY)
+                intent.getIntExtra(Constants.NOTI_SMALL_ICON_ID, 0),
+                intent.getIntExtra(Constants.NOTI_LARGE_ICON_ID, 0),
+                intent.getStringExtra(Constants.NOTI_TITLE),
+                intent.getStringExtra(Constants.NOTI_TEXT),
+                intent.getBooleanExtra(Constants.NOTI_ONGOING, true),
+                intent.getIntExtra(Constants.NOTI_PRIORITY, NotificationCompat.PRIORITY_DEFAULT),
+                intent.getStringExtra(Constants.NOTI_TICKER_TEXT),
+                (PendingIntent) intent.getParcelableExtra(Constants.NOTI_PENDING_INTENT),
+                intent.getIntExtra(Constants.NOTI_CUSTOM_LAYOUT_ID, 0)
         );
         NotificationUtil.showNotification(this, noti);
 

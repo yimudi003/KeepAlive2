@@ -1,19 +1,18 @@
 package com.keepalive.daemon.core.utils;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.text.TextUtils;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
-
-import com.keepalive.daemon.core.R;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -25,10 +24,19 @@ public class NotificationUtil {
     public static final int NOTIFICATION_ID = 0x9999;
 
     public static Notification createNotification(Context context,
-                                                  int icon,
+                                                  int smallIconId,
+                                                  int largeIconId,
                                                   String title,
                                                   String text,
-                                                  String activityName) {
+                                                  boolean ongoing,
+                                                  int priority,
+                                                  CharSequence tickerText,
+                                                  PendingIntent pendingIntent,
+                                                  int customLayoutId) {
+        Logger.d(Logger.TAG, "call createNotification(): smallIconId=" + smallIconId
+                + ", largeIconId=" + largeIconId + ", title=" + title + ", text=" + text
+                + ", ongoing=" + ongoing + ", priority=" + priority + ", tickerText=" + tickerText
+                + ", pendingIntent=" + pendingIntent + ", customLayoutId=" + customLayoutId);
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         // 唯一的通知通道的id.
@@ -48,39 +56,64 @@ public class NotificationUtil {
         }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
-        // 通知小图标
-        if (icon == 0) {
-            builder.setSmallIcon(R.drawable.ic_launcher);
+
+        // 设置通知小图标
+        if (smallIconId == 0) {
+//            builder.setSmallIcon(R.drawable.ic_launcher);
+            Logger.w(Logger.TAG, "Oops!!! Invalid notification small smallIconId.");
+            return null;
         } else {
-            builder.setSmallIcon(icon);
+            builder.setSmallIcon(smallIconId);
         }
-        // 通知标题
+
+        // 设置通知大图标
+        if (largeIconId > 0) {
+            Bitmap bm = BitmapFactory.decodeResource(context.getResources(), largeIconId);
+            builder.setLargeIcon(bm);
+        }
+
+        // 设置通知标题
         String label = context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
         if (TextUtils.isEmpty(title)) {
             builder.setContentTitle(label);
         } else {
             builder.setContentTitle(title);
         }
-        // 通知内容
+
+        // 设置通知内容
         if (TextUtils.isEmpty(text)) {
             builder.setContentText(label + "正在运行");
         } else {
             builder.setContentText(text);
         }
-        // 设定通知显示的时间
+
+        // 设置通知显示的时间
         builder.setWhen(System.currentTimeMillis());
-        // 设定启动的内容
-        if (!TextUtils.isEmpty(activityName)) {
-            try {
-                Class<? extends Activity> act = (Class<? extends Activity>) Class.forName(activityName);
-                Intent intent = new Intent(context, act);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
-                        intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.setContentIntent(pendingIntent);
-            } catch (Throwable th) {
-                th.printStackTrace();
-            }
+
+        // 设置是否常驻
+        builder.setOngoing(ongoing);
+
+        // 设置优先级
+        if (priority >= -2 && priority <= 2) {
+            builder.setPriority(priority);
+        } else {
+            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        }
+
+        // 设置提示
+        if (!TextUtils.isEmpty(tickerText)) {
+            builder.setTicker(tickerText);
+        }
+
+        // 设置 ContentIntent
+        if (pendingIntent != null) {
+            builder.setContentIntent(pendingIntent);
+        }
+
+        // 设置自定义布局
+        if (customLayoutId > 0) {
+            RemoteViews views = new RemoteViews(context.getPackageName(), customLayoutId);
+            builder.setContent(views);
         }
 
         // 创建通知并返回
@@ -88,6 +121,10 @@ public class NotificationUtil {
     }
 
     public static void showNotification(Service service, Notification notification) {
+        if (notification == null) {
+            return;
+        }
+
         try {
             service.startForeground(NOTIFICATION_ID, notification);
         } catch (Throwable th) {
