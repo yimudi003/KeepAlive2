@@ -29,13 +29,13 @@ public class NotificationUtil {
                                                   String title,
                                                   String text,
                                                   boolean ongoing,
-                                                  int priority,
+                                                  int pri,
                                                   CharSequence tickerText,
                                                   PendingIntent pendingIntent,
                                                   int customLayoutId) {
         Logger.d(Logger.TAG, "call createNotification(): smallIconId=" + smallIconId
                 + ", largeIconId=" + largeIconId + ", title=" + title + ", text=" + text
-                + ", ongoing=" + ongoing + ", priority=" + priority + ", tickerText=" + tickerText
+                + ", ongoing=" + ongoing + ", pri=" + pri + ", tickerText=" + tickerText
                 + ", pendingIntent=" + pendingIntent + ", customLayoutId=" + customLayoutId);
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
@@ -59,7 +59,7 @@ public class NotificationUtil {
 
         // 设置通知小图标
         if (smallIconId == 0) {
-//            builder.setSmallIcon(R.drawable.ic_launcher);
+//            builder.setSmallIcon(R.mipmap.noti_small_icon);
             Logger.w(Logger.TAG, "Oops!!! Invalid notification small smallIconId.");
             return null;
         } else {
@@ -94,8 +94,8 @@ public class NotificationUtil {
         builder.setOngoing(ongoing);
 
         // 设置优先级
-        if (priority >= -2 && priority <= 2) {
-            builder.setPriority(priority);
+        if (pri >= NotificationCompat.PRIORITY_MIN && pri <= NotificationCompat.PRIORITY_MAX) {
+            builder.setPriority(pri);
         } else {
             builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         }
