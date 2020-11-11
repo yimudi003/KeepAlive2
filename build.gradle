@@ -5,7 +5,9 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+        maven {
+            url 'https://dl.bintray.com/zizzy0301/zizzy-nbb'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
@@ -20,6 +22,10 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url 'https://dl.bintray.com/zizzy0301/zizzy-nbb'
+        }
+
         flatDir {
             dirs 'libs'
         }
@@ -28,4 +34,13 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+ext {
+    minSdkVersion = 19
+    compileSdkVersion = 29
+    buildToolsVersion = "29.0.3"
+    targetSdkVersion = 29
+    versionCode = 1
+    versionName = "1.0.2"
 }

@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0.2"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
 
         consumerProguardFiles "proguard-rules.pro"
 
@@ -30,19 +30,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
+
     lintOptions {
         abortOnError false
     }
+
     android.libraryVariants.all { variant ->
         // 修改aar名称
         variant.outputs.all { output ->
             def name = project.name
+            println "======> name=" + name
             def versionName = defaultConfig.versionName
+            println "======> versionName=" + versionName
             if (variant.buildType.name == "release") {
                 outputFileName = "${name}_v${versionName}r.aar"
             } else if (variant.buildType.name == "debug") {
@@ -70,7 +75,20 @@ def releaseTime() {
     return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("GMT+8"))
 }
 
-
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
+}
+
+apply plugin: 'maven'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri("./Upload-StatisticsSdk"))
+            pom.version = rootProject.ext.versionName
+            pom.artifactId = project.name
+            pom.groupId = "com.zizzy-nbb.lib"
+            pom.name = project.name
+            pom.packaging = "aar"
+        }
+    }
 }
