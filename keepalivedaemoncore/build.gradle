@@ -51,18 +51,18 @@ android {
             println "======> outputFileName=" + outputFileName
         }
         // 复制aar到指定目录
-        variant.assemble.doLast {
-            variant.outputs.all { output ->
-                // 输出目录在：项目目录/build/outputs/aar/
-                def absolutePath = project.rootDir.absolutePath
-                def outputPath = [absolutePath, "build", "outputs", "aar"].join(File.separator)
-                println "======> outputPath=" + outputPath
-                copy {
-                    from output.outputFile
-                    into outputPath
-                }
-            }
-        }
+//        variant.assemble.doLast {
+//            variant.outputs.all { output ->
+//                // 输出目录在：项目目录/build/outputs/aar/
+//                def absolutePath = project.rootDir.absolutePath
+//                def outputPath = [absolutePath, "build", "outputs", "aar"].join(File.separator)
+//                println "======> outputPath=" + outputPath
+//                copy {
+//                    from output.outputFile
+//                    into outputPath
+//                }
+//            }
+//        }
     }
 }
 

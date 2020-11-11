@@ -21,6 +21,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            def fileName = outputFile.getName()
+            def versionName = variant.mergedFlavor.versionName
+            if (outputFile != null && outputFile.name != null && outputFile.name.endsWith(".apk")) {
+                if (variant.buildType.name == 'release') {
+                    fileName = applicationId + "_v${versionName}r.apk"
+                } else if (variant.buildType.name == 'debug') {
+                    fileName = applicationId + "_v${versionName}d.apk"
+                }
+                output.outputFileName = fileName
+            }
+        }
+    }
 }
 
 dependencies {
