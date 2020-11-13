@@ -95,6 +95,8 @@ public class ServiceHolder {
 
     public static void fireService(Context context, Class<? extends Service> clazz,
                                    boolean isForeground) {
+        Logger.i(Logger.TAG, "call fireService(): service=" + clazz.getName()
+                + ", isForeground=" + isForeground);
         Intent intent = new Intent(context, clazz);
         try {
             if (isForeground) {
