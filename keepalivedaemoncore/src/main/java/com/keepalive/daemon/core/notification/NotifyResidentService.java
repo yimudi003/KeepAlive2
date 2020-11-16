@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
@@ -40,7 +41,7 @@ public class NotifyResidentService extends KeepAliveService {
                 intent.getIntExtra(Constants.NOTI_IMPORTANCE, NotificationManager.IMPORTANCE_DEFAULT),
                 intent.getStringExtra(Constants.NOTI_TICKER_TEXT),
                 (PendingIntent) intent.getParcelableExtra(Constants.NOTI_PENDING_INTENT),
-                intent.getIntExtra(Constants.NOTI_CUSTOM_LAYOUT_ID, 0)
+                (RemoteViews) intent.getParcelableExtra(Constants.NOTI_REMOTE_VIEWS)
         );
         NotificationUtil.showNotification(this, noti);
 

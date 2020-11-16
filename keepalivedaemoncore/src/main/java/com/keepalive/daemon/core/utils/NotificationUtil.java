@@ -35,11 +35,11 @@ public class NotificationUtil {
                                                   int importance,
                                                   CharSequence tickerText,
                                                   PendingIntent pendingIntent,
-                                                  int customLayoutId) {
+                                                  RemoteViews views) {
         Logger.d(Logger.TAG, "call createNotification(): smallIconId=" + smallIconId
                 + ", largeIconId=" + largeIconId + ", title=" + title + ", text=" + text
                 + ", ongoing=" + ongoing + ", pri=" + pri + ", tickerText=" + tickerText
-                + ", pendingIntent=" + pendingIntent + ", customLayoutId=" + customLayoutId);
+                + ", pendingIntent=" + pendingIntent + ", remoteViews=" + views);
         NotificationManager nm = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         // 唯一的通知通道的id.
@@ -116,8 +116,7 @@ public class NotificationUtil {
         }
 
         // 设置自定义布局
-        if (customLayoutId > 0) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), customLayoutId);
+        if (views != null) {
             builder.setContent(views);
         }
 
