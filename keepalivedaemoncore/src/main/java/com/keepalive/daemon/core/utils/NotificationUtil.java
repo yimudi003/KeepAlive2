@@ -14,6 +14,8 @@ import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
 
+import com.keepalive.daemon.core.R;
+
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationUtil {
@@ -62,9 +64,9 @@ public class NotificationUtil {
 
         // 设置通知小图标
         if (smallIconId == 0) {
-//            builder.setSmallIcon(R.mipmap.noti_small_icon);
-            Logger.w(Logger.TAG, "Oops!!! Invalid notification small smallIconId.");
-            return null;
+            builder.setSmallIcon(R.drawable.noti_icon);
+//            Logger.w(Logger.TAG, "Oops!!! Invalid notification small smallIconId.");
+//            return null;
         } else {
             builder.setSmallIcon(smallIconId);
         }

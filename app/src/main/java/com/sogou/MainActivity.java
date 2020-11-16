@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     Intent intent = new Intent(MainActivity.this, MyService.class);
-                    intent.putExtra(Constants.NOTI_SMALL_ICON_ID, R.drawable.notify_panel_notification_icon_bg);
+//                    intent.putExtra(Constants.NOTI_SMALL_ICON_ID, R.drawable.notify_panel_notification_icon_bg);
                     intent.putExtra(Constants.NOTI_TITLE, "You are Superman");
                     intent.putExtra(Constants.NOTI_TEXT, "HaHaHa...");
                     ContextCompat.startForegroundService(MainActivity.this, intent);
