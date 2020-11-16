@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -59,13 +58,13 @@ public class KeepAliveService extends DaemonBaseService {
     };
 
     protected void bindDaemonService() {
-        if (KeepAlive.client != null && KeepAlive.client.mConfigurations != null) {
+        if (KeepAlive.client != null && KeepAlive.client.config != null) {
             String processName = KeepAlive.getProcessName();
             if (processName == null) {
                 return;
             }
 
-            KeepAliveConfigs configs = KeepAlive.client.mConfigurations;
+            KeepAliveConfigs configs = KeepAlive.client.config;
             if (processName.startsWith(configs.PERSISTENT_CONFIG.processName)) {
                 Intent intent = new Intent();
                 ComponentName component = new ComponentName(getPackageName(),
