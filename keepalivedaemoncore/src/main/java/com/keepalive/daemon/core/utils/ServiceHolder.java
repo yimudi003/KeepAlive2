@@ -71,7 +71,7 @@ public class ServiceHolder {
     public boolean bindService(Context context, Class<? extends Service> clazz,
                                OnServiceConnectionListener listener) {
         Intent bindIntent = new Intent(context, clazz);
-        bindIntent.setAction(context.getPackageName() + ".monitor.bindService");
+        bindIntent.setAction(context.getPackageName() + ".monitor.BIND_SERVICE");
         Logger.i(Logger.TAG, "call bindService(): " + bindIntent);
         return context.bindService(bindIntent,
                 new ServiceConnectionImpl(listener),
@@ -97,10 +97,11 @@ public class ServiceHolder {
                                    boolean isForeground) {
         Logger.i(Logger.TAG, "call fireService(): service=" + clazz.getName()
                 + ", isForeground=" + isForeground);
-        Intent intent = new Intent(context, clazz);
         try {
+            Intent intent = new Intent(context, clazz);
             if (isForeground) {
-                ContextCompat.startForegroundService(context, new Intent(context, clazz));
+//                intent.setAction(context.getPackageName() + ".resident.START_FOREGROUND_SERVICE");
+                ContextCompat.startForegroundService(context, intent);
             } else {
                 context.startService(intent);
             }

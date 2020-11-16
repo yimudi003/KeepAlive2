@@ -16,7 +16,7 @@
             android:exported="true"
             android:process=":daemon">
             <intent-filter>
-                <action android:name="${applicationId}.monitor.bindService" />
+                <action android:name="${applicationId}.monitor.BIND_SERVICE" />
             </intent-filter>
         </service>
 
