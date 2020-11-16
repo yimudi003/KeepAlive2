@@ -1,6 +1,7 @@
 package com.keepalive.daemon.core.notification;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 
@@ -36,6 +37,7 @@ public class NotifyResidentService extends KeepAliveService {
                 intent.getStringExtra(Constants.NOTI_TEXT),
                 intent.getBooleanExtra(Constants.NOTI_ONGOING, true),
                 intent.getIntExtra(Constants.NOTI_PRIORITY, NotificationCompat.PRIORITY_DEFAULT),
+                intent.getIntExtra(Constants.NOTI_IMPORTANCE, NotificationManager.IMPORTANCE_DEFAULT),
                 intent.getStringExtra(Constants.NOTI_TICKER_TEXT),
                 (PendingIntent) intent.getParcelableExtra(Constants.NOTI_PENDING_INTENT),
                 intent.getIntExtra(Constants.NOTI_CUSTOM_LAYOUT_ID, 0)

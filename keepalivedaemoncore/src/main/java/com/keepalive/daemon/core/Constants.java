@@ -11,6 +11,7 @@ public interface Constants {
     String NOTI_TEXT = "noti_text";
     String NOTI_ONGOING = "noti_ongoing";
     String NOTI_PRIORITY = "noti_priority";
+    String NOTI_IMPORTANCE = "noti_importance";
     String NOTI_TICKER_TEXT = "noti_ticker_text";
     String NOTI_PENDING_INTENT = "noti_pending_intent";
     String NOTI_CUSTOM_LAYOUT_ID = "noti_custom_layout_id";

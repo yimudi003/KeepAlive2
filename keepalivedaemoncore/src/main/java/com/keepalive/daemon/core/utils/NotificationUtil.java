@@ -30,6 +30,7 @@ public class NotificationUtil {
                                                   String text,
                                                   boolean ongoing,
                                                   int pri,
+                                                  int importance,
                                                   CharSequence tickerText,
                                                   PendingIntent pendingIntent,
                                                   int customLayoutId) {
@@ -47,7 +48,9 @@ public class NotificationUtil {
             // 用户可见的通道名称
             String channelName = context.getPackageName() + ".notification.channelName";
             // 通道的重要程度
-            int importance = NotificationManager.IMPORTANCE_HIGH;
+            if (importance < 0 || importance > 5) {
+                importance = NotificationManager.IMPORTANCE_DEFAULT;
+            }
             NotificationChannel nc = new NotificationChannel(channelId, channelName, importance);
             nc.setDescription(context.getPackageName() + ".notification.description");
             if (nm != null) {
