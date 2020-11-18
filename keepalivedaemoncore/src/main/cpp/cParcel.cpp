@@ -1524,6 +1524,7 @@ double Parcel::readDouble() const
         mData = const_cast<uint8_t *>(data);
         mDataSize = mDataCapacity = dataSize;
         //ALOGI("setDataReference Setting data size of %p to %lu (pid=%d)", this, mDataSize, getpid());
+        LOGD("Setting data size of %p to %lu (pid=%d)", this, mDataSize, getpid());
         mDataPos = 0;
         LOGD("Setting data pos of %p to %zu", this, mDataPos);
         mObjects = const_cast<binder_size_t *>(objects);
