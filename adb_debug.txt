@@ -1,5 +1,5 @@
 adb shell:
-logcat | egrep " Zygote | AndroidRuntime: | DEBUG|keepalive2-daemon|binder| ActivityManager:|ANR"
+logcat | egrep " Zygote | AndroidRuntime: | DEBUG|keepalive2-daemon|binder| ActivityManager:|ANR|logbridge"
 
 ps -A | egrep "init|zygote|u0_axxx"
 
