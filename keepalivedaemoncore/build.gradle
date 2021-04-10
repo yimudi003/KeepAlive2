@@ -3,14 +3,14 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
 
         consumerProguardFiles "proguard-rules.pro"
 
@@ -20,8 +20,7 @@ android {
             }
         }
         ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a"
-//            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
 
@@ -31,16 +30,65 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
+
     lintOptions {
         abortOnError false
     }
+
+    android.libraryVariants.all { variant ->
+        // 修改aar名称
+        variant.outputs.all { output ->
+            def name = project.name
+            println "======> name=" + name
+            def versionName = defaultConfig.versionName
+            println "======> versionName=" + versionName
+            if (variant.buildType.name == "release") {
+                outputFileName = "${name}_v${versionName}r.aar"
+            } else if (variant.buildType.name == "debug") {
+                outputFileName = "${name}_v${versionName}d.aar"
+            }
+            println "======> outputFileName=" + outputFileName
+        }
+        // 复制aar到指定目录
+//        variant.assemble.doLast {
+//            variant.outputs.all { output ->
+//                // 输出目录在：项目目录/build/outputs/aar/
+//                def absolutePath = project.rootDir.absolutePath
+//                def outputPath = [absolutePath, "build", "outputs", "aar"].join(File.separator)
+//                println "======> outputPath=" + outputPath
+//                copy {
+//                    from output.outputFile
+//                    into outputPath
+//                }
+//            }
+//        }
+    }
+}
+
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("GMT+8"))
 }
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
+}
+
+apply plugin: 'maven'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri("./Upload-StatisticsSdk"))
+            pom.version = rootProject.ext.versionName
+            pom.artifactId = project.name
+            pom.groupId = "com.zizzy-nbb.lib"
+            pom.name = project.name
+            pom.packaging = "aar"
+        }
+    }
 }

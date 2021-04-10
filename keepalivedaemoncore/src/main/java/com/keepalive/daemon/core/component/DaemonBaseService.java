@@ -1,6 +1,5 @@
 package com.keepalive.daemon.core.component;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import androidx.annotation.Nullable;
 
 import com.keepalive.daemon.core.IMonitorService;
 import com.keepalive.daemon.core.utils.Logger;
-import com.keepalive.daemon.core.utils.NotificationUtil;
 
 public abstract class DaemonBaseService extends Service {
 
@@ -28,16 +26,8 @@ public abstract class DaemonBaseService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Notification noti = NotificationUtil.createNotification(
-                this,
-                0,
-                null,
-                null,
-                null
-        );
-        NotificationUtil.showNotification(this, noti);
+        Logger.d(Logger.TAG, "############### call onCreate()");
     }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -48,6 +38,7 @@ public abstract class DaemonBaseService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Logger.d(Logger.TAG, "############### call onBind(): " + intent);
         return binder;
     }
 }

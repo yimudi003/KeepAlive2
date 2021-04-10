@@ -9,14 +9,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
 
+import static com.keepalive.daemon.core.Constants.COLON_SEPARATOR;
+
 public class ShellExecutor {
-    private static final String COLON_SEPARATOR = ":";
 
-    public static void execute(File dir, Map map, String[] cmds) {
-        if (cmds.length == 0) {
-            return;
-        }
-
+    public static void execute(File dir, Map<String, String> map, String[] args) {
         try {
             ProcessBuilder builder = new ProcessBuilder(new String[0]);
             String envPath = System.getenv("PATH");
@@ -30,7 +27,7 @@ public class ShellExecutor {
                         break;
                     }
                     File f = new File(split[i], "sh");
-                    if (f.exists()) {
+                    if (f != null && f.exists()) {
                         builder.command(new String[]{f.getPath()}).redirectErrorStream(true);
                         break;
                     }
@@ -38,13 +35,13 @@ public class ShellExecutor {
                 }
             }
             builder.directory(dir);
-            Map<String, String> environment = builder.environment();
-            environment.putAll(System.getenv());
+            Map<String, String> env = builder.environment();
+            env.putAll(System.getenv());
             if (map != null) {
-                environment.putAll(map);
+                env.putAll(map);
             }
             StringBuilder sb = new StringBuilder();
-            for (String append : cmds) {
+            for (String append : args) {
                 sb.append(append);
                 sb.append("\n");
             }
@@ -54,7 +51,7 @@ public class ShellExecutor {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(),
                         "utf-8"));
-                for (String cmd : cmds) {
+                for (String cmd : args) {
                     if (cmd.endsWith("\n")) {
                         os.write(cmd.getBytes());
                     } else {

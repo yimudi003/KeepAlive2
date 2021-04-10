@@ -135,7 +135,7 @@ namespace android {
             }
         }
 
-        LOGD("Invalid object type 0x%08x", obj.hdr.type);
+        LOGE("Invalid object type 0x%08x", obj.hdr.type);
     }
 //
 //    void acquire_object(const sp<ProcessState>& proc,
@@ -399,7 +399,7 @@ namespace android {
         err = continueWrite(size);
         if (err == NO_ERROR) {
             mDataSize = size;
-            LOGD("Setting data size of %p to %zu", this, mDataSize);
+//            LOGD("Setting data size of %p to %zu", this, mDataSize);
         }
         return err;
     }
@@ -1524,6 +1524,7 @@ double Parcel::readDouble() const
         mData = const_cast<uint8_t *>(data);
         mDataSize = mDataCapacity = dataSize;
         //ALOGI("setDataReference Setting data size of %p to %lu (pid=%d)", this, mDataSize, getpid());
+        LOGD("Setting data size of %p to %lu (pid=%d)", this, mDataSize, getpid());
         mDataPos = 0;
         LOGD("Setting data pos of %p to %zu", this, mDataPos);
         mObjects = const_cast<binder_size_t *>(objects);
@@ -1754,7 +1755,7 @@ double Parcel::readDouble() const
             mData = data;
             mObjects = objects;
             mDataSize = (mDataSize < desired) ? mDataSize : desired;
-            LOGD("Setting data size of %p to %zu", this, mDataSize);
+//            LOGD("Setting data size of %p to %zu", this, mDataSize);
             mDataCapacity = desired;
             mObjectsSize = mObjectsCapacity = objectsSize;
             mNextObjectHint = 0;
@@ -1800,11 +1801,11 @@ double Parcel::readDouble() const
             } else {
                 if (mDataSize > desired) {
                     mDataSize = desired;
-                    LOGD("Setting data size of %p to %zu", this, mDataSize);
+//                    LOGD("Setting data size of %p to %zu", this, mDataSize);
                 }
                 if (mDataPos > desired) {
                     mDataPos = desired;
-                    LOGD("Setting data pos of %p to %zu", this, mDataPos);
+//                    LOGD("Setting data pos of %p to %zu", this, mDataPos);
                 }
             }
 
@@ -1830,8 +1831,8 @@ double Parcel::readDouble() const
 
             mData = data;
             mDataSize = mDataPos = 0;
-            LOGD("Setting data size of %p to %zu", this, mDataSize);
-            LOGD("Setting data pos of %p to %zu", this, mDataPos);
+//            LOGD("Setting data size of %p to %zu", this, mDataSize);
+//            LOGD("Setting data pos of %p to %zu", this, mDataPos);
             mDataCapacity = desired;
         }
 
@@ -1845,8 +1846,8 @@ double Parcel::readDouble() const
         mDataSize = 0;
         mDataCapacity = 0;
         mDataPos = 0;
-        LOGD("Setting data size of %p to %zu", this, mDataSize);
-        LOGD("Setting data pos of %p to %zu", this, mDataPos);
+//        LOGD("Setting data size of %p to %zu", this, mDataSize);
+//        LOGD("Setting data pos of %p to %zu", this, mDataPos);
         mObjects = NULL;
         mObjectsSize = 0;
         mObjectsCapacity = 0;

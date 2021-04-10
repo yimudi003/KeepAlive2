@@ -7,10 +7,14 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import androidx.core.content.ContextCompat;
+
 import com.keepalive.daemon.core.IMonitorService;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.keepalive.daemon.core.utils.Logger.TAG;
 
 public class ServiceHolder {
 
@@ -20,7 +24,7 @@ public class ServiceHolder {
     }
 
     private static class Holder {
-        private static volatile ServiceHolder INSTANCE = new ServiceHolder();
+        private volatile static ServiceHolder INSTANCE = new ServiceHolder();
     }
 
     public static ServiceHolder getInstance() {
@@ -47,9 +51,9 @@ public class ServiceHolder {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            Logger.d(Logger.TAG, "ComponentName: " + name + ", IBinder: " + service);
+            Logger.d(TAG, "ComponentName: " + name + ", IBinder: " + service);
             monitorService = IMonitorService.Stub.asInterface(service);
-            Logger.d(Logger.TAG, "IBinder asInterface: " + monitorService);
+            Logger.d(TAG, "IBinder asInterface: " + monitorService);
             if (listener != null && monitorService != null) {
                 listener.onServiceConnection(this, true);
             }
@@ -69,8 +73,8 @@ public class ServiceHolder {
     public boolean bindService(Context context, Class<? extends Service> clazz,
                                OnServiceConnectionListener listener) {
         Intent bindIntent = new Intent(context, clazz);
-        bindIntent.setAction(context.getPackageName() + ".monitor.bindService");
-        Logger.i(Logger.TAG, "call bindService(): " + bindIntent);
+        bindIntent.setAction(context.getPackageName() + ".monitor.BIND_SERVICE");
+        Logger.i(TAG, "call bindService(): " + bindIntent);
         return context.bindService(bindIntent,
                 new ServiceConnectionImpl(listener),
                 Context.BIND_AUTO_CREATE
@@ -80,14 +84,45 @@ public class ServiceHolder {
     public void unbindService(Context context, ServiceConnection connection) {
         if (connection != null && ((ServiceConnectionImpl) connection).isConnected()) {
             try {
-                Logger.i(Logger.TAG, "call unbindService(): " + connection);
+                Logger.i(TAG, "call unbindService(): " + connection);
                 context.unbindService(connection);
                 if (connCache.containsKey(connection)) {
                     connCache.remove(connection);
                 }
-            } catch (Throwable th) {
-                th.printStackTrace();
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
+        }
+    }
+
+    public static void fireService(Context context, Class<? extends Service> clazz,
+                                   boolean isForeground) {
+        Logger.i(TAG, "call fireService(): service=" + clazz.getName()
+                + ", isForeground=" + isForeground);
+        try {
+            Intent intent = new Intent(context, clazz);
+            if (isForeground) {
+//                intent.setAction(context.getPackageName() + ".resident.START_FOREGROUND_SERVICE");
+                ContextCompat.startForegroundService(context, intent);
+            } else {
+                try {
+                    context.startService(intent);
+                } catch (Throwable t) {
+                    Logger.e(TAG, "Failed to start service " + clazz.getCanonicalName(), t);
+                    context.bindService(intent, new ServiceConnection() {
+                        @Override
+                        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                            Logger.d(TAG, "ComponentName: " + componentName + ", IBinder: " + iBinder);
+                        }
+
+                        @Override
+                        public void onServiceDisconnected(ComponentName componentName) {
+                        }
+                    }, 0);
+                }
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 

@@ -6,8 +6,8 @@ import android.os.Parcelable;
 import android.util.Base64;
 
 public class DaemonEntity implements Parcelable {
-    public String[] strArr;
-    public String str;
+    public String[] args;
+    public String niceName;
 
     public Intent intent;
     public Intent intent2;
@@ -34,8 +34,8 @@ public class DaemonEntity implements Parcelable {
     }
 
     protected DaemonEntity(Parcel parcel) {
-        strArr = parcel.createStringArray();
-        str = parcel.readString();
+        args = parcel.createStringArray();
+        niceName = parcel.readString();
         if (parcel.readInt() != 0) {
             intent = Intent.CREATOR.createFromParcel(parcel);
         }
@@ -49,8 +49,8 @@ public class DaemonEntity implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeStringArray(strArr);
-        parcel.writeString(str);
+        parcel.writeStringArray(args);
+        parcel.writeString(niceName);
         if (intent == null) {
             parcel.writeInt(0);
         } else {

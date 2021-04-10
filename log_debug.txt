@@ -1,3 +1,0 @@
-logcat | egrep " Zygote | AndroidRuntime: | DEBUG|keepalive2-daemon|binder| ActivityManager:"
-
-ps -A | egrep "init|zygote|u0_a989"

@@ -23,14 +23,8 @@ public class DaemonService extends DaemonBaseService {
         } catch (Throwable th) {
             Logger.e(Logger.TAG, "failed to start foreground service: " + th.getMessage());
         }
-
-        Intent intent2 = new Intent();
-        intent2.setClassName(getPackageName(), AssistService1.class.getName());
-        startService(intent2);
-
-        Intent intent3 = new Intent();
-        intent3.setClassName(getPackageName(), AssistService2.class.getName());
-        startService(intent3);
+        startService(new Intent().setClassName(getPackageName(), AssistService1.class.getName()));
+        startService(new Intent().setClassName(getPackageName(), AssistService2.class.getName()));
         super.onCreate();
     }
 }

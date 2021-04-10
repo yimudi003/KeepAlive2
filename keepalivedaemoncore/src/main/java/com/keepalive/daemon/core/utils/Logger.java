@@ -2,6 +2,7 @@ package com.keepalive.daemon.core.utils;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
+import android.util.Log;
 
 import com.keepalive.daemon.core.BuildConfig;
 
@@ -11,30 +12,28 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static android.util.Log.DEBUG;
+import static android.util.Log.ERROR;
+import static android.util.Log.INFO;
+import static android.util.Log.VERBOSE;
+import static android.util.Log.WARN;
+
 public class Logger {
 
     private static final boolean GLOBAL_TAG = true;
-    private static final int VERBOSE = android.util.Log.VERBOSE;
-    private static final int DEBUG = android.util.Log.DEBUG;
-    private static final int INFO = android.util.Log.INFO;
-    private static final int ERROR = android.util.Log.ERROR;
-    private static final int WARN = android.util.Log.WARN;
 
     public static final String TAG = "keepalive2-daemon";
     public static final boolean DEBUGABLE = BuildConfig.DEBUG;
 
     private static boolean isLoggable(String tag, int level) {
-        if (DEBUGABLE) {
-            return true;
-        }
-        return android.util.Log.isLoggable(tag, level);
+        return DEBUGABLE || Log.isLoggable(tag, level);
     }
 
     public static void d(String tag, String message) {
         if (isLoggable(tag, DEBUG)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.d(tag, extraString + message, null);
+            Log.d(tag, extraString + message, null);
         }
     }
 
@@ -42,7 +41,7 @@ public class Logger {
         if (isLoggable(tag, VERBOSE)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.v(tag, extraString + message, null);
+            Log.v(tag, extraString + message, null);
         }
     }
 
@@ -50,7 +49,7 @@ public class Logger {
         if (isLoggable(tag, INFO)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.i(tag, extraString + message);
+            Log.i(tag, extraString + message);
         }
     }
 
@@ -58,7 +57,7 @@ public class Logger {
         if (isLoggable(tag, WARN)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.w(tag, extraString + message);
+            Log.w(tag, extraString + message);
         }
     }
 
@@ -66,7 +65,7 @@ public class Logger {
         if (isLoggable(tag, ERROR)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.e(tag, extraString + message);
+            Log.e(tag, extraString + message);
         }
     }
 
@@ -74,7 +73,7 @@ public class Logger {
         if (isLoggable(tag, ERROR)) {
             String extraString = getMethodNameAndLineNumber();
             tag = privateTag() ? tag : getTag();
-            android.util.Log.e(tag, extraString + message, e);
+            Log.e(tag, extraString + message, e);
         }
     }
 
@@ -152,7 +151,7 @@ public class Logger {
                 fp.close();
             }
         } catch (Exception e) {
-            android.util.Log.d(Logger.TAG, "error : " + e);
+            Log.d(Logger.TAG, "error : " + e);
         }
     }
 }

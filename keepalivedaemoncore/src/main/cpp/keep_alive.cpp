@@ -19,7 +19,7 @@ extern "C" {
 void set_process_name(JNIEnv *env) {
     jclass process = env->FindClass("android/os/Process");
     jmethodID setArgV0 = env->GetStaticMethodID(process, "setArgV0", "(Ljava/lang/String;)V");
-    jstring name = env->NewStringUTF("daemon");
+    jstring name = env->NewStringUTF("app_d");
     env->CallStaticVoidMethod(process, setArgV0, name);
 }
 
@@ -54,6 +54,7 @@ void writeIntent(Parcel &out, const char *mPackage, const char *mClass) {
 }
 
 void writeService(Parcel &out, const char *mPackage, const char *mClass, int sdk_version) {
+    LOGD("================> %s/%s, sdkVersion: %d", mPackage, mClass, sdk_version);
     if (sdk_version >= 26) {
         out.writeInterfaceToken(String16("android.app.IActivityManager"));
         out.writeNullBinder();
@@ -61,7 +62,7 @@ void writeService(Parcel &out, const char *mPackage, const char *mClass, int sdk
         writeIntent(out, mPackage, mClass);
         out.writeString16(NULL, 0); // resolvedType
         // mServiceData.writeInt(context.getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O ? 1 : 0);
-        out.writeInt32(0);
+        out.writeInt32(1); // 0 WTF!!!
         out.writeString16(String16(mPackage)); // callingPackage
         out.writeInt32(0);
     } else if (sdk_version >= 23) {
@@ -120,7 +121,7 @@ void notify_and_waitfor(const char *observer_self_path, const char *observer_dae
 }
 
 int lock_file(const char *lock_file_path) {
-    LOGD("start try to lock file >> %s <<", lock_file_path);
+    LOGD("try to lock file >> %s <<", lock_file_path);
     int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
     LOGD("open [%s] : %d", lock_file_path, lockFileDescriptor);
     if (lockFileDescriptor == -1) {
@@ -130,12 +131,54 @@ int lock_file(const char *lock_file_path) {
     int lockRet = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
     LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, lockRet);
     if (lockRet == -1) {
-        LOGE("lock file failed >> %s <<", lock_file_path);
+        LOGE("failed to lock file >> %s <<", lock_file_path);
         return 0;
     } else {
-        LOGD("lock file success  >> %s <<", lock_file_path);
+        LOGD("success to lock file >> %s <<", lock_file_path);
         return 1;
     }
+}
+
+bool wait_file_lock(const char *lock_file_path) {
+    int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
+    if (lockFileDescriptor == -1)
+        lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
+    int try_time = 0;
+//    while (/*try_time < 5 && */flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) { // 会死循环！！！
+////        ++try_time;
+////        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
+//        usleep(1000);
+//    }
+
+    int err_no = -1;
+    for (;;) {
+        err_no = flock(lockFileDescriptor, LOCK_EX | LOCK_NB);
+        LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
+        if (err_no != -1) {
+            if (err_no == 0) {
+                int unlock_result = flock(lockFileDescriptor, LOCK_UN);
+                LOGD("lock_file_path: %s , unlock_result: %d", lock_file_path, unlock_result);
+                sleep(1);
+            } else {
+                usleep(1000);
+            }
+        } else {
+            break;
+        }
+        ++try_time;
+        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
+    }
+
+    err_no = flock(lockFileDescriptor, LOCK_EX);
+    LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
+    bool ret = err_no == -1;
+    if (ret) {
+        LOGD("failed to lock file >> %s <<", lock_file_path);
+    } else {
+        LOGD("success to lock file >> %s <<", lock_file_path);
+    }
+    LOGD("retry to lock file >> %s << %d", lock_file_path, err_no);
+    return ret;
 }
 
 void java_callback(JNIEnv *env, jobject thiz, char *method_name) {
@@ -151,7 +194,7 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
                uint32_t transact_code) {
     int lock_status = 0;
     int try_time = 0;
-    while (try_time < 5 && !(lock_status = lock_file(indicator_self_path))) {
+    while (try_time < 3 && !(lock_status = lock_file(indicator_self_path))) {
         try_time++;
         LOGD("Persistent lock myself failed and try again as %d times", try_time);
         usleep(10000);
@@ -188,17 +231,17 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
 
     uint32_t handle = get_service("activity", mDriverFD);
     Parcel *data = new Parcel;
-    LOGD("writeService %s %s", pkgName, serviceName);
 //    writeService(*data, pkgName, serviceName, sdk_version);
 // com.boolbird.keepalive com.boolbird.keepalive.demo.Service1
     writeService(*data, pkgName, serviceName, sdk_version);
 
     LOGD("Watch >>>>to lock_file<<<<< !!");
-    lock_status = lock_file(indicator_daemon_path);
+//    lock_status = lock_file(indicator_daemon_path);
+    lock_status = wait_file_lock(indicator_daemon_path);
     if (lock_status) {
         LOGE("Watch >>>>DAEMON<<<<< Dead !!");
         status_t status = write_transact(handle, transact_code, *data, NULL, 1, mDriverFD);
-        LOGD("writeService result is %d", status);
+        LOGD("write_transact status is %d", status);
 //        int result = binder.get()->transact(code, parcel, NULL, 1);
         remove(observer_self_path);// it`s important ! to prevent from deadlock
 //        java_callback(env, thiz, DAEMON_CALLBACK_NAME);
@@ -207,29 +250,6 @@ void do_daemon(JNIEnv *env, jclass jclazz, const char *indicator_self_path,
         }
     }
     delete data;
-}
-
-bool wait_file_lock(const char *lock_file_path) {
-    int lockFileDescriptor = open(lock_file_path, O_RDONLY | O_LARGEFILE);
-    if (lockFileDescriptor == -1)
-        lockFileDescriptor = open(lock_file_path, O_CREAT, S_IRUSR | S_IWUSR);
-//    int try_time = 0;
-    while (/*try_time < 5 && */flock(lockFileDescriptor, LOCK_EX | LOCK_NB) != -1) {
-//        ++try_time;
-//        LOGD("wait [%s:%d] lock retry: %d", lock_file_path, lockFileDescriptor, try_time);
-        usleep(1000);
-    }
-
-    int err_no = flock(lockFileDescriptor, LOCK_EX);
-    LOGD("flock [%s:%d] : %d", lock_file_path, lockFileDescriptor, err_no);
-    bool ret = err_no != -1;
-    if (ret) {
-        LOGD("success to lock file >> %s <<", lock_file_path);
-    } else {
-        LOGD("failed to lock file >> %s <<", lock_file_path);
-    }
-    LOGD("retry lock file >> %s << %d", lock_file_path, err_no);
-    return ret;
 }
 
 void keep_alive_set_sid(JNIEnv *env, jclass jclazz) {
@@ -292,6 +312,8 @@ void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
         LOGE("fork 1 error\n");
         exit(-1);
     } else if (pid == 0) { //第一个子进程
+        setsid();
+
         if ((pid = fork()) < 0) {
             LOGE("fork 2 error\n");
             exit(-1);
@@ -300,7 +322,7 @@ void keep_alive_do_daemon(JNIEnv *env, jclass jclazz,
             exit(0);
         }
 
-        LOGD("mypid: %d", getpid());
+        LOGD("*************************************************************** mypid: %d", getpid());
         const int MAX_PATH = 256;
         char indicator_self_path_child[MAX_PATH];
         char indicator_daemon_path_child[MAX_PATH];

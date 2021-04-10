@@ -8,8 +8,6 @@ import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
-
 import com.keepalive.daemon.core.component.DaemonInstrumentation;
 import com.keepalive.daemon.core.component.DaemonReceiver;
 import com.keepalive.daemon.core.component.DaemonService;
@@ -35,7 +33,7 @@ public class DaemonHolder {
     }
 
     private static class Holder {
-        private static volatile DaemonHolder INSTANCE = new DaemonHolder();
+        private volatile static DaemonHolder INSTANCE = new DaemonHolder();
     }
 
     public static DaemonHolder getInstance() {
@@ -108,7 +106,7 @@ public class DaemonHolder {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Logger.d(Logger.TAG, "############################# onReceive(): intent=" + intent);
-                ContextCompat.startForegroundService(context, new Intent(context, DaemonService.class));
+                ServiceHolder.fireService(context, DaemonService.class, false);
             }
         });
         KeepAlive.init(base, configs);

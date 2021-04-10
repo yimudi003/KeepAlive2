@@ -21,5 +21,5 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.keepalive.daemon.core.** {
-    public protected *;
+    *;
 }

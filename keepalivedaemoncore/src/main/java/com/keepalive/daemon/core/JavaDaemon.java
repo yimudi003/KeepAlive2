@@ -4,37 +4,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 
-import androidx.core.content.ContextCompat;
-
 import com.keepalive.daemon.core.component.DaemonService;
 import com.keepalive.daemon.core.scheduler.FutureScheduler;
 import com.keepalive.daemon.core.scheduler.SingleThreadFutureScheduler;
 import com.keepalive.daemon.core.utils.Logger;
+import com.keepalive.daemon.core.utils.ServiceHolder;
 import com.keepalive.daemon.core.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.keepalive.daemon.core.Constants.COLON_SEPARATOR;
+
 public class JavaDaemon {
-    private static final String COLON_SEPARATOR = ":";
-    private static volatile FutureScheduler futureScheduler;
+    private volatile static FutureScheduler scheduler;
 
     private JavaDaemon() {
-        if (futureScheduler == null) {
+        if (scheduler == null) {
             synchronized (JavaDaemon.class) {
-                if (futureScheduler == null) {
-                    futureScheduler = new SingleThreadFutureScheduler(
-                            "javadaemon-holder",
-                            true
-                    );
+                if (scheduler == null) {
+                    scheduler = new SingleThreadFutureScheduler("javadaemon-holder", true);
                 }
             }
         }
     }
 
     private static class Holder {
-        private static volatile JavaDaemon INSTANCE = new JavaDaemon();
+        private volatile static JavaDaemon INSTANCE = new JavaDaemon();
     }
 
     public static JavaDaemon getInstance() {
@@ -51,43 +48,37 @@ public class JavaDaemon {
         env.intent3 = intent3;
         env.processName = Utils.getProcessName();
 
-        String[] strArr = {"daemon", "assist1", "assist2"};
-        fire(context, env, strArr);
+        String[] args = {"daemon", "assist1", "assist2"};
+        fire(context, env, args);
     }
 
-    private void fire(Context context, DaemonEnv env, String[] strArr) {
-        Logger.i(Logger.TAG, "############################################## !!! fire(): " +
-                "env=" + env + ", strArr=" + Arrays.toString(strArr));
-        boolean z;
-        String processName = Utils.getProcessName();
-        Logger.v(Logger.TAG, "processName: " + processName);
+    private void fire(Context context, DaemonEnv env, String[] args) {
+        Logger.i(Logger.TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! fire(): "
+                + "env=" + env + ", args=" + Arrays.toString(args));
+        boolean hit = false;
+        String processName = env.processName;
         if (processName.startsWith(context.getPackageName()) && processName.contains(COLON_SEPARATOR)) {
-            String substring = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
+            String niceName = processName.substring(processName.lastIndexOf(COLON_SEPARATOR) + 1);
             List<String> list = new ArrayList();
-            if (strArr != null) {
-                z = false;
-                for (String str : strArr) {
-                    if (str.equals(substring)) {
-                        z = true;
-                    } else {
-                        list.add(str);
-                    }
+            for (String arg : args) {
+                if (arg.equals(niceName)) {
+                    hit = true;
+                } else {
+                    list.add(arg);
                 }
-            } else {
-                z = false;
             }
-            if (z) {
-                Logger.v(Logger.TAG, "app lock file start: " + substring);
-                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + substring + "_d");
+            if (hit) {
+                Logger.v(Logger.TAG, "app lock file start: " + niceName);
+                NativeKeepAlive.lockFile(context.getFilesDir() + "/" + niceName + "_d");
                 Logger.v(Logger.TAG, "app lock file finish");
-                String[] strArr2 = new String[list.size()];
-                for (int i = 0; i < strArr2.length; i++) {
-                    strArr2[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
+                String[] strArr = new String[list.size()];
+                for (int i = 0; i < strArr.length; i++) {
+                    strArr[i] = context.getFilesDir() + "/" + list.get(i) + "_d";
                 }
-                futureScheduler.scheduleFuture(new AppProcessRunnable(env, strArr2, "daemon"), 0);
+                scheduler.scheduleFuture(new AppProcessRunnable(env, strArr, niceName), 0);
             }
         } else if (processName.equals(context.getPackageName())) {
-            ContextCompat.startForegroundService(context, new Intent(context, DaemonService.class));
+            ServiceHolder.fireService(context, DaemonService.class, false);
         }
     }
 }
